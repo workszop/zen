@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Zen - Canvas Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap');
+
+        :root {
+            --bg-color: #fafafa;
+            --text-color: #1a1a1a;
+            --accent-color: #1a1a1a;
+            --border-color: #e5e5e5;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg-color);
+            font-family: "DM Sans", sans-serif;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 60px 24px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-family: "DM Serif Display", serif;
+            font-size: 32px;
+            font-weight: 400;
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
+        }
+
+        /* Forms & UI */
+        .input-group { margin-bottom: 24px; }
+        
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"], input[type="password"], textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+            background: var(--white);
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+        }
+
+        textarea { height: 150px; resize: vertical; }
+
+        button {
+            padding: 14px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .btn-primary { background: var(--accent-color); color: white; width: 100%; }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-secondary { background: white; border: 1px solid var(--border-color); color: #666; }
+        .btn-secondary:hover { border-color: #333; color: #333; }
+
+        /* Canvas Container */
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            transition: height 0.3s ease;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+        }
+
+        /* Utility */
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .search-bar { display: flex; gap: 10px; }
+        .metadata { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .source-tag { font-size: 13px; font-weight: 500; background: #eee; padding: 4px 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Personal Zen</h1>
+    </header>
+
+    <div id="step-api" class="fade-in">
+        <div class="input-group">
+            <label>Gemini API Key</label>
+            <input type="password" id="apiKey" placeholder="Paste your Google AI Studio key here">
+        </div>
+        <button class="btn-primary" id="btnSaveKey" disabled>Start Journey</button>
+    </div>
+
+    <div id="step-upload" class="hidden">
+        <div class="input-group">
+            <label>Title</label>
+            <input type="text" id="docTitle" placeholder="e.g. Meditations by Marcus Aurelius">
+        </div>
+        <div class="input-group">
+            <label>Source Text</label>
+            <textarea id="sourceText" placeholder="Paste the text you wish to consult..."></textarea>
+        </div>
+        <div class="input-group" style="display:flex; gap:10px;">
+            <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">Upload .txt</button>
+            <input type="file" id="fileInput" accept=".txt" style="display:none">
+        </div>
+        <button class="btn-primary" id="btnLoadText" disabled>Load Text</button>
+    </div>
+
+    <div id="step-oracle" class="hidden">
+        <div class="metadata">
+            <span class="source-tag" id="displayTitle">Untitled</span>
+            <button class="btn-secondary" style="padding: 6px 12px; font-size: 13px;" id="btnReset">Change Text</button>
+        </div>
+
+        <div class="input-group">
+            <label>Your Question</label>
+            <div class="search-bar">
+                <input type="text" id="queryInput" placeholder="What seeks an answer?">
+                <button class="btn-primary" style="width: auto;" id="btnConsult">Consult</button>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper" id="canvasContainer" style="display:none;">
+            <canvas id="oracleCanvas"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- APP STATE ---
+    const state = {
+        key: '',
+        title: '',
+        text: '',
+        isDrawing: false,
+        animationId: null
+    };
+
+    // --- DOM REFERENCES ---
+    const els = {
+        stepApi: document.getElementById('step-api'),
+        stepUpload: document.getElementById('step-upload'),
+        stepOracle: document.getElementById('step-oracle'),
+        apiKey: document.getElementById('apiKey'),
+        btnSaveKey: document.getElementById('btnSaveKey'),
+        docTitle: document.getElementById('docTitle'),
+        sourceText: document.getElementById('sourceText'),
+        fileInput: document.getElementById('fileInput'),
+        btnLoadText: document.getElementById('btnLoadText'),
+        displayTitle: document.getElementById('displayTitle'),
+        btnReset: document.getElementById('btnReset'),
+        queryInput: document.getElementById('queryInput'),
+        btnConsult: document.getElementById('btnConsult'),
+        canvasContainer: document.getElementById('canvasContainer'),
+        canvas: document.getElementById('oracleCanvas')
+    };
+
+    const ctx = els.canvas.getContext('2d');
+
+    // --- EVENT LISTENERS ---
+
+    // API Key
+    els.apiKey.addEventListener('input', (e) => {
+        els.btnSaveKey.disabled = !e.target.value.trim();
+    });
+    els.btnSaveKey.addEventListener('click', () => {
+        state.key = els.apiKey.value.trim();
+        switchStep(els.stepUpload);
+    });
+
+    // Upload
+    els.sourceText.addEventListener('input', () => {
+        els.btnLoadText.disabled = !els.sourceText.value.trim();
+    });
+    
+    els.fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            els.sourceText.value = ev.target.result;
+            els.docTitle.value = file.name.replace('.txt', '');
+            els.btnLoadText.disabled = false;
+        };
+        reader.readAsText(file);
+    });
+
+    els.btnLoadText.addEventListener('click', () => {
+        state.text = els.sourceText.value;
+        state.title = els.docTitle.value || 'Untitled Text';
+        els.displayTitle.textContent = state.title;
+        switchStep(els.stepOracle);
+    });
+
+    // Oracle
+    els.btnReset.addEventListener('click', () => {
+        switchStep(els.stepUpload);
+        els.canvasContainer.style.display = 'none';
+    });
+
+    els.btnConsult.addEventListener('click', async () => {
+        if(!els.queryInput.value.trim()) return;
+        
+        const query = els.queryInput.value;
+        startLoadingAnimation();
+        
+        try {
+            const passage = await fetchPassage(query);
+            renderPassageOnCanvas(passage);
+        } catch (e) {
+            renderPassageOnCanvas("The Oracle is silent. (Error: " + e.message + ")");
+        }
+    });
+
+    // --- LOGIC ---
+
+    function switchStep(target) {
+        [els.stepApi, els.stepUpload, els.stepOracle].forEach(el => el.classList.add('hidden'));
+        target.classList.remove('hidden');
+        target.classList.add('fade-in');
+    }
+
+    async function fetchPassage(query) {
+        // Using Google Gemini 2.0 Flash Exp (closest to 'Flash 3')
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${state.key}`;
+        
+        const systemPrompt = `
+        You are a Literary Oracle. 
+        CONTEXT: "${state.text.substring(0, 10000)}..." (Text truncated for context limit if needed).
+        TASK: User asks "${query}". Select the single most profound, relevant verbatim passage from the context to answer them.
+        OUTPUT: Just the passage text. No intro. No quotes around it.
+        `;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: systemPrompt }] }]
+            })
+        });
+
+        const data = await response.json();
+        if(data.error) throw new Error(data.error.message);
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "No passage found.";
+    }
+
+    // --- CANVAS RENDERING ENGINE ---
+
+    function setupCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = els.canvasContainer.getBoundingClientRect();
+        els.canvas.width = rect.width * dpr;
+        els.canvas.height = 400 * dpr; // Default height, adjusts dynamic
+        els.canvas.style.width = '100%';
+        els.canvas.style.height = '400px';
+        ctx.scale(dpr, dpr);
+        return { width: rect.width, height: 400 };
+    }
+
+    // 1. Loading Animation (Procedural Enso Circle)
+    function startLoadingAnimation() {
+        els.canvasContainer.style.display = 'block';
+        if(state.animationId) cancelAnimationFrame(state.animationId);
+        
+        const { width, height } = setupCanvas();
+        let angle = 0;
+        
+        function drawEnso() {
+            // Fade effect for trail
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            const cx = width / 2;
+            const cy = height / 2;
+            const radius = 60;
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            
+            // Draw arc segment
+            ctx.arc(cx, cy, radius, angle, angle + 0.2);
+            ctx.stroke();
+
+            angle += 0.15;
+            state.animationId = requestAnimationFrame(drawEnso);
+        }
+        drawEnso();
+    }
+
+    // 2. Text Renderer (Typewriter Style)
+    function renderPassageOnCanvas(text) {
+        if(state.animationId) cancelAnimationFrame(state.animationId);
+        
+        const { width } = setupCanvas(); // Reset canvas
+        ctx.clearRect(0, 0, width, 2000); // Clear
+
+        // Config
+        const fontSize = 20;
+        const lineHeight = 34;
+        const maxWidth = width - 80; // Padding
+        const startX = 40;
+        const startY = 60;
+        
+        ctx.font = `400 ${fontSize}px "DM Serif Display"`;
+        ctx.fillStyle = '#1a1a1a';
+
+        // Wrap Text Logic
+        const words = text.split(' ');
+        let lines = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+            const w = words[i];
+            const testLine = currentLine + " " + w;
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width < maxWidth) {
+                currentLine = testLine;
+            } else {
+                lines.push(currentLine);
+                currentLine = w;
+            }
+        }
+        lines.push(currentLine);
+
+        // Adjust Canvas Height to fit text
+        const totalHeight = startY + (lines.length * lineHeight) + 60;
+        const dpr = window.devicePixelRatio || 1;
+        els.canvas.height = totalHeight * dpr;
+        els.canvas.style.height = totalHeight + 'px';
+        ctx.scale(dpr, dpr);
+        ctx.font = `400 ${fontSize}px "DM Serif Display"`; // Reset font after resize
+
+        // Animation Loop
+        let lineIndex = 0;
+        let opacity = 0;
+
+        function animateText() {
+            // Draw current state
+            ctx.clearRect(0, 0, width, totalHeight);
+            
+            // Draw all fully visible lines
+            for(let i=0; i < lineIndex; i++) {
+                ctx.fillStyle = `rgba(26, 26, 26, 1)`;
+                ctx.fillText(lines[i], startX, startY + (i * lineHeight));
+            }
+
+            // Draw fading in line
+            if(lineIndex < lines.length) {
+                ctx.fillStyle = `rgba(26, 26, 26, ${opacity})`;
+                ctx.fillText(lines[lineIndex], startX, startY + (lineIndex * lineHeight));
+                
+                opacity += 0.05;
+                if(opacity >= 1) {
+                    opacity = 0;
+                    lineIndex++;
+                }
+                requestAnimationFrame(animateText);
+            } else {
+                // Done. Draw border decoration
+                ctx.strokeStyle = '#e5e5e5';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(startX, startY - 40);
+                ctx.lineTo(startX + 40, startY - 40);
+                ctx.stroke();
+            }
+        }
+
+        animateText();
+    }
+</script>
+</body>
+</html>
