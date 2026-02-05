@@ -362,7 +362,7 @@
         // --- INITIALIZATION ---
         async function init() {
             try {
-                const response = await fetch('bob_dylan_1961_1980.txt');
+                const response = await fetch('dylan_1961_1980.txt');
                 if (!response.ok) throw new Error('File not found');
                 state.text = await response.text();
                 state.title = 'Bob Dylan 1961-1980';
