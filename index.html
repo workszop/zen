@@ -170,10 +170,9 @@
             background: #fff;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            overflow: hidden;
+            overflow: visible;
             margin-top: 20px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            transition: height 0.3s ease;
         }
 
         canvas {
@@ -577,7 +576,7 @@ OUTPUT FORMAT:
                     contents: [{ parts: [{ text: systemPrompt }] }],
                     generationConfig: {
                         temperature: 0.7,
-                        maxOutputTokens: 1024
+                        maxOutputTokens: 2048
                     }
                 })
             });
@@ -603,6 +602,9 @@ OUTPUT FORMAT:
         function startLoadingAnimation() {
             els.canvasContainer.style.display = 'block';
             if (state.animationId) cancelAnimationFrame(state.animationId);
+
+            // Force reflow to ensure accurate dimensions after display change
+            els.canvasContainer.offsetHeight;
 
             const { width, height } = setupCanvas();
             let angle = 0;
@@ -670,12 +672,15 @@ OUTPUT FORMAT:
                 lines.pop();
             }
 
-            const totalHeight = startY + (lines.length * lineHeight) + 60;
+            const totalHeight = Math.max(200, startY + (lines.length * lineHeight) + 60);
             const dpr = window.devicePixelRatio || 1;
             els.canvas.height = totalHeight * dpr;
             els.canvas.style.height = totalHeight + 'px';
+            // Canvas resize resets context, so re-apply transformations
             ctx.scale(dpr, dpr);
             ctx.font = `400 ${fontSize}px "DM Serif Display"`;
+            ctx.fillStyle = '#1a1a1a';
+            ctx.clearRect(0, 0, width, totalHeight);
 
             let lineIndex = 0;
             let opacity = 0;
