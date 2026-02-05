@@ -278,7 +278,7 @@
                 </div>
                 <div class="mode-btn" id="modeAI" onclick="setMode('ai')">
                     <div class="mode-label">🤖 BM25 + Gemini</div>
-                    <div class="mode-desc">BM25 selects songs → Gemini picks lines</div>
+                    <div class="mode-desc">BM25 selects fragments → Gemini picks lines</div>
                 </div>
             </div>
 
@@ -523,10 +523,10 @@
             return topScores[randomTop].passage;
         }
 
-        // --- SONG PARSING ---
-        function parseSongs(text) {
-            // Split text into individual songs based on "Title:" markers or "---" separators
-            const songs = [];
+        // --- FRAGMENT PARSING ---
+        function parseFragments(text) {
+            // Split text into fragments based on "Title:" markers or "---" separators
+            const fragments = [];
             const parts = text.split(/(?=Title:)|(?=^---$)/m);
 
             for (const part of parts) {
@@ -538,10 +538,10 @@
                 const title = titleMatch ? titleMatch[1].trim() : 'Untitled';
                 const content = titleMatch ? trimmed.slice(titleMatch[0].length).trim() : trimmed;
 
-                // Filter out empty songs or separator-only content
+                // Filter out empty fragments or separator-only content
                 const lines = content.split('\n').filter(l => l.trim() && l.trim() !== '---');
                 if (lines.length > 0) {
-                    songs.push({
+                    fragments.push({
                         title,
                         content: lines.join('\n'),
                         lines
@@ -549,35 +549,35 @@
                 }
             }
 
-            return songs;
+            return fragments;
         }
 
-        // --- BM25 SONG SELECTION ---
-        function bm25SelectSongs(query, count = 10) {
+        // --- BM25 FRAGMENT SELECTION ---
+        function bm25SelectFragments(query, count = 10) {
             const k1 = 1.5;
             const b = 0.75;
             const tokenize = (text) => text.toLowerCase().match(/\b\w+\b/g) || [];
 
-            const songs = parseSongs(state.text);
-            if (songs.length === 0) return [];
+            const fragments = parseFragments(state.text);
+            if (fragments.length === 0) return [];
 
-            // Calculate document lengths (using full song content)
-            const docLengths = songs.map(s => tokenize(s.content).length);
+            // Calculate document lengths (using full fragment content)
+            const docLengths = fragments.map(f => tokenize(f.content).length);
             const avgDocLength = docLengths.reduce((a, b) => a + b, 0) / docLengths.length;
 
             // Build IDF for query terms
             const queryTokens = tokenize(query);
-            const N = songs.length;
+            const N = fragments.length;
             const idf = {};
 
             for (const term of queryTokens) {
-                const docsWithTerm = songs.filter(s => tokenize(s.content).includes(term)).length;
+                const docsWithTerm = fragments.filter(f => tokenize(f.content).includes(term)).length;
                 idf[term] = Math.log((N - docsWithTerm + 0.5) / (docsWithTerm + 0.5) + 1);
             }
 
-            // Score each song
-            const scores = songs.map((song, idx) => {
-                const tokens = tokenize(song.content);
+            // Score each fragment
+            const scores = fragments.map((fragment, idx) => {
+                const tokens = tokenize(fragment.content);
                 const termFreq = {};
                 tokens.forEach(t => termFreq[t] = (termFreq[t] || 0) + 1);
 
@@ -589,16 +589,16 @@
                     const denominator = tf + k1 * (1 - b + b * (docLen / avgDocLength));
                     score += (idf[term] || 0) * (numerator / denominator);
                 }
-                return { song, score };
+                return { fragment, score };
             });
 
             // Sort by score and return top N
             scores.sort((a, b) => b.score - a.score);
-            const topSongs = scores.slice(0, Math.min(count, scores.length));
+            const topFragments = scores.slice(0, Math.min(count, scores.length));
 
-            // If no matches found, return random songs
-            if (topSongs.every(s => s.score === 0)) {
-                const shuffled = [...songs];
+            // If no matches found, return random fragments
+            if (topFragments.every(s => s.score === 0)) {
+                const shuffled = [...fragments];
                 for (let i = shuffled.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
@@ -606,7 +606,7 @@
                 return shuffled.slice(0, count);
             }
 
-            return topSongs.map(s => s.song);
+            return topFragments.map(s => s.fragment);
         }
 
         // --- AI PASSAGE FETCHING ---
@@ -632,17 +632,17 @@
         async function fetchPassageAI(query) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${state.key}`;
 
-            // Use BM25 to select top 10 most relevant songs
-            const topSongs = bm25SelectSongs(query, 10);
+            // Use BM25 to select top 10 most relevant fragments
+            const topFragments = bm25SelectFragments(query, 10);
 
-            // Format songs with titles for context
-            const retrievedContext = topSongs.map(song => {
-                return `[${song.title}]\n${song.content}`;
+            // Format fragments with titles for context
+            const retrievedContext = topFragments.map(fragment => {
+                return `[${fragment.title}]\n${fragment.content}`;
             }).join('\n\n---\n\n');
 
-            const systemPrompt = `You are given a collection of song lyrics, pre-selected by relevance to the user's question. Select 2-3 consecutive lines that feel mysteriously relevant and resonant.
+            const systemPrompt = `You are given a collection of text fragments (songs, paragraphs, passages, etc.), pre-selected by relevance to the user's question. Select 2-3 consecutive lines that feel mysteriously relevant and resonant.
 
-CANDIDATE SONGS (selected by BM25 relevance):
+CANDIDATE FRAGMENTS (selected by BM25 relevance):
 ${retrievedContext}
 
 USER QUESTION: "${query}"
@@ -654,7 +654,7 @@ SELECTION PRINCIPLES:
 
 MATCHING HEURISTICS:
 - Try to match the tone and the topic of the question, it shouldn't sound too random.
-- The pre-selected songs are already relevant - find the most poetic and meaningful lines within them.
+- The pre-selected fragments are already relevant - find the most poetic and meaningful lines within them.
 
 OUTPUT FORMAT:
 - ALWAYS return 2-3 consecutive lines, never just one line
