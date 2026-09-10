@@ -7,7 +7,7 @@
     <title>Personal Zen</title>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display:ital@0;1&display=swap">
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Licorice&display=swap">
     <script defer src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
     <style>
         /* ─── Tokens ─────────────────────────────── */
@@ -21,6 +21,14 @@
             --focus: rgba(23, 22, 26, 0.08);
             --font-body: "DM Sans", system-ui, sans-serif;
             --font-display: "DM Serif Display", Georgia, serif;
+            --font-answer: "Licorice", cursive;
+            --answer-style: italic;
+            --answer-weight: 400;
+            --answer-size: 36px;
+            --answer-line-height: 48px;
+            --answer-align: left;
+            --icon-size: 22px;
+            --mode-icon-size: 32px;
             --radius: 10px;
         }
 
@@ -54,6 +62,7 @@
 
         .topbar {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
@@ -100,9 +109,10 @@
         }
 
         .icon-btn .lucide {
-            width: 16px;
-            height: 16px;
+            width: var(--icon-size);
+            height: var(--icon-size);
             stroke-width: 1.5;
+            flex-shrink: 0;
         }
 
         .chip {
@@ -137,9 +147,9 @@
         }
 
         .mode-btn .mode-icon {
-            width: 15px;
-            height: 15px;
-            stroke-width: 1.5;
+            width: var(--mode-icon-size);
+            height: var(--mode-icon-size);
+            stroke-width: 1.1;
             flex-shrink: 0;
         }
 
@@ -203,8 +213,8 @@
         }
 
         .ask button .lucide {
-            width: 18px;
-            height: 18px;
+            width: var(--icon-size);
+            height: var(--icon-size);
             stroke-width: 1.5;
         }
 
@@ -286,8 +296,8 @@
         }
 
         .btn .lucide {
-            width: 16px;
-            height: 16px;
+            width: var(--icon-size);
+            height: var(--icon-size);
             stroke-width: 1.5;
         }
 
@@ -409,6 +419,11 @@
         }
 
         @media (max-width: 768px) {
+            :root {
+                --answer-size: 32px;
+                --answer-line-height: 44px;
+            }
+
             .page {
                 padding: 32px 18px 56px;
             }
@@ -418,7 +433,7 @@
             }
 
             .chip {
-                max-width: 140px;
+                max-width: 124px;
             }
         }
     </style>
@@ -445,21 +460,22 @@
 
             <div class="modes" role="group" aria-label="Selection mode">
                 <button type="button" class="mode-btn" id="modeBM25" aria-pressed="true">
-                    <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    <svg class="mode-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor"
                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M5 8C1 8 2 2 5 3c2 0 3 2 2 3m10 0c-1-1 0-3 2-3 3-1 4 5 0 5" />
-                        <path d="M12 5c-5 0-9 3-9 8s4 8 9 8 9-3 9-8-4-8-9-8Z" />
-                        <ellipse cx="8" cy="12" rx="2" ry="2.5" />
-                        <ellipse cx="16" cy="12" rx="2" ry="2.5" />
-                        <path d="m10 16 2 1 2-1m-2 1v2" />
+                        <path d="M5.5 11C.5 9 2 3 6 3c3 0 5 2 5 4m10 0c0-2 2-4 5-4 4 0 5.5 6 .5 8" />
+                        <path d="M5 8c-1-2 2-3 3-1m16 0c1-2 4-1 3 1" />
+                        <path d="M16 6C9 6 4 10 4 18c0 7 5 11 12 11s12-4 12-11C28 10 23 6 16 6Z" />
+                        <path d="M12 12c-3-1-6 3-5 6 1 3 5 3 6 0 1-2 1-5-1-6Zm8 0c3-1 6 3 5 6-1 3-5 3-6 0-1-2-1-5 1-6Z" />
+                        <path d="M9 16c1-1 2-1 3 0m8 0c1-1 2-1 3 0m-9 5c1-1 3-1 4 0l-2 2-2-2Zm2 2v1m0 0c-1 2-3 1-4 0m4 0c1 2 3 1 4 0M7 21l1 1m17-1-1 1" />
                     </svg>Panda
                 </button>
                 <button type="button" class="mode-btn" id="modeAI" aria-pressed="false">
-                    <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    <svg class="mode-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor"
                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M10 4c0-3 4-3 4 0" />
-                        <circle cx="12" cy="6" r="3" />
-                        <path d="M9 11c-2 1-2 5-4 5-3 0-3 4 0 4h14c3 0 3-4 0-4-2 0-2-4-4-5M8 15l4 3 4-3m-4 3-5 2m5-2 5 2" />
+                        <path d="M14 4c-1-3 5-3 4 0M12 7c0-5 8-5 8 0v3c0 5-8 5-8 0V7Z" />
+                        <path d="M12 7c2 0 3-1 4-2 1 1 2 2 4 2M12 8c-3-2-3 5 0 5m8-5c3-2 3 5 0 5M13.5 9l1.5.5m3.5-.5-1.5.5m-2 2h2" />
+                        <path d="M12 15c-4 1-4 6-7 8-3 2-2 5 2 5h18c4 0 5-3 2-5-3-2-3-7-7-8M13 15c0 4 3 6 6 7M11 19l-2 4 7 3 7-3-2-4" />
+                        <path d="M13 23c1-2 5-2 6 0m-6 0h6m-3 3-7 2m7-2 7 2M6 30h20" />
                     </svg>Buddha
                 </button>
                 <button type="button" class="mode-btn" id="modeZen" aria-pressed="false"
@@ -576,6 +592,7 @@
             text: "",
             mode: "bm25", // 'bm25' | 'ai' | 'zen'
             ai: loadAiSettings(),
+            answerText: "",
             animationId: null
         };
 
@@ -1113,81 +1130,124 @@ OUTPUT FORMAT:
             if (state.animationId) cancelAnimationFrame(state.animationId);
             state.animationId = null;
             els.canvasContainer.dataset.state = "loading";
+            els.canvasContainer.dataset.animation = "bamboo";
             els.canvasContainer.setAttribute("aria-busy", "true");
+            els.canvas.setAttribute("aria-label", "Bamboo swaying in the wind while the answer is prepared");
             els.status.textContent = "Listening…";
 
             let { width, height } = setupCanvas(280);
             const stroke = inkColor();
             const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
             const startedAt = performance.now();
+            const stalks = [
+                { x: -38, height: 163, lean: -10, phase: 0.4 },
+                { x: 0, height: 204, lean: 3, phase: 0 },
+                { x: 37, height: 145, lean: 12, phase: 0.8 }
+            ];
 
-            function drawWater(timestamp) {
+            function drawBamboo(timestamp) {
                 state.animationId = null;
                 if (els.canvasContainer.getBoundingClientRect().width !== width) {
                     ({ width, height } = setupCanvas(280));
                 }
-                const phase = reducedMotion.matches ? 0.58 : ((timestamp - startedAt) % 3600) / 3600;
-                const centerX = width / 2;
-                const lakeY = 164;
+                const time = reducedMotion.matches ? 0 : (timestamp - startedAt) / 1000;
+                const baseY = height - 34;
                 ctx.clearRect(0, 0, width, height);
                 ctx.strokeStyle = stroke;
-                ctx.lineWidth = 1.25;
+                ctx.lineWidth = 1;
                 ctx.lineCap = "round";
                 ctx.lineJoin = "round";
 
-                // A still lake, drawn only in ink. Never paint the background.
-                ctx.globalAlpha = 0.3;
-                ctx.beginPath();
-                ctx.moveTo(centerX - 88, lakeY);
-                ctx.lineTo(centerX - 30, lakeY);
-                ctx.moveTo(centerX + 30, lakeY);
-                ctx.lineTo(centerX + 88, lakeY);
-                ctx.stroke();
+                for (const stalk of stalks) {
+                    const baseX = width / 2 + stalk.x;
+                    const wind = Math.sin(time * 0.75 + stalk.phase) * 7 + Math.sin(time * 1.2) * 2;
+                    const stemX = t => baseX + stalk.lean * t + wind * t * t;
+                    ctx.globalAlpha = 0.65;
 
-                if (phase < 0.4) {
-                    const fall = phase / 0.4;
-                    const tipY = 66 + 82 * fall * fall;
-                    ctx.globalAlpha = Math.min(1, fall * 8) * Math.min(1, (1 - fall) * 12);
+                    // Roots stay still; upper nodes drift with a slow breeze.
                     ctx.beginPath();
-                    ctx.moveTo(centerX, tipY);
-                    ctx.bezierCurveTo(centerX - 2, tipY + 6, centerX - 7, tipY + 9, centerX - 6, tipY + 13);
-                    ctx.bezierCurveTo(centerX - 5, tipY + 20, centerX + 5, tipY + 20, centerX + 6, tipY + 13);
-                    ctx.bezierCurveTo(centerX + 7, tipY + 9, centerX + 2, tipY + 6, centerX, tipY);
-                    ctx.closePath();
+                    for (const edge of [-1, 1]) {
+                        ctx.moveTo(baseX + edge * 2.4, baseY);
+                        ctx.quadraticCurveTo(baseX + stalk.lean / 2 + edge * 2,
+                            baseY - stalk.height / 2, stemX(1) + edge * 1.5, baseY - stalk.height);
+                    }
                     ctx.stroke();
-                }
 
-                // Fixed, fine rings fade in succession after the drop lands.
-                for (let ring = 0; ring < 3; ring++) {
-                    const ripple = (phase - 0.36 - ring * 0.09) / 0.36;
-                    if (ripple <= 0 || ripple >= 1) continue;
-                    ctx.globalAlpha = Math.sin(ripple * Math.PI) * (0.5 - ring * 0.1);
-                    ctx.beginPath();
-                    ctx.ellipse(centerX, lakeY, 16 + ring * 19, 3 + ring * 4, 0, 0, Math.PI * 2);
-                    ctx.stroke();
+                    for (let node = 1; node <= 5; node++) {
+                        const t = node / 5;
+                        const x = stemX(t);
+                        const y = baseY - stalk.height * t;
+                        ctx.beginPath();
+                        ctx.moveTo(x - 3.5, y);
+                        ctx.quadraticCurveTo(x, y - 1.5, x + 3.5, y);
+                        ctx.stroke();
+                        if (node < 2 || node > 4) continue;
+
+                        const side = stalk.x < 0 ? -1 : stalk.x > 0 ? 1 : node % 2 ? -1 : 1;
+                        const endX = x + side * 31 + wind * 0.25;
+                        const endY = y - 12;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.quadraticCurveTo(x + side * 15, y - 10, endX, endY);
+                        ctx.stroke();
+
+                        const leaves = [
+                            { at: 0.4, dx: side * 13, dy: -25 },
+                            { at: 0.7, dx: side * 25, dy: -12 },
+                            { at: 0.85, dx: side * 21, dy: 13 }
+                        ];
+                        for (const leaf of leaves) {
+                            const fromX = x + (endX - x) * leaf.at;
+                            const fromY = y + (endY - y) * leaf.at - 2;
+                            const tipX = fromX + leaf.dx + Math.sin(time * 1.4 + node) * 1.2;
+                            const tipY = fromY + leaf.dy;
+                            const midX = (fromX + tipX) / 2;
+                            const midY = (fromY + tipY) / 2;
+                            const length = Math.hypot(tipX - fromX, tipY - fromY);
+                            const normalX = -(tipY - fromY) / length * 3;
+                            const normalY = (tipX - fromX) / length * 3;
+                            ctx.beginPath();
+                            ctx.moveTo(fromX, fromY);
+                            ctx.quadraticCurveTo(midX + normalX, midY + normalY, tipX, tipY);
+                            ctx.quadraticCurveTo(midX - normalX, midY - normalY, fromX, fromY);
+                            ctx.stroke();
+                        }
+                    }
                 }
                 ctx.globalAlpha = 1;
-                if (!reducedMotion.matches) state.animationId = requestAnimationFrame(drawWater);
+                if (!reducedMotion.matches) state.animationId = requestAnimationFrame(drawBamboo);
             }
-            drawWater(startedAt);
+            drawBamboo(startedAt);
+        }
+
+        function answerTypography() {
+            const style = getComputedStyle(document.documentElement);
+            const token = name => style.getPropertyValue(name).trim();
+            return {
+                font: `${token("--answer-style")} ${token("--answer-weight")} ${token("--answer-size")} ${token("--font-answer")}`,
+                lineHeight: parseFloat(token("--answer-line-height")),
+                align: token("--answer-align")
+            };
         }
 
         function renderPassageOnCanvas(text) {
             if (state.animationId) cancelAnimationFrame(state.animationId);
             state.animationId = null;
+            state.answerText = text;
             els.canvasContainer.style.display = "block";
             els.canvasContainer.dataset.state = "answer";
+            delete els.canvasContainer.dataset.animation;
             els.canvasContainer.setAttribute("aria-busy", "false");
+            els.canvas.setAttribute("aria-label", text);
 
             const { width } = setupCanvas(400);
-            const fontSize = 21;
-            const lineHeight = 36;
-            const maxWidth = width - 8;
-            const startX = 4;
+            const { font, lineHeight, align } = answerTypography();
+            const maxWidth = width - 32;
+            const startX = align === "center" ? width / 2 : align === "right" ? width - 16 : 16;
             const startY = 64;
             const ink = inkColor();
 
-            ctx.font = `italic 400 ${fontSize}px "DM Serif Display", Georgia, serif`;
+            ctx.font = font;
 
             const lines = [];
             for (const textLine of text.split("\n").filter(l => l.trim())) {
@@ -1207,9 +1267,10 @@ OUTPUT FORMAT:
 
             const totalHeight = Math.max(200, startY + (lines.length * lineHeight) + 48);
             setupCanvas(totalHeight);
-            ctx.font = `italic 400 ${fontSize}px "DM Serif Display", Georgia, serif`;
+            ctx.font = font;
+            ctx.textAlign = align;
 
-            let lineIndex = 0;
+            let lineIndex = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? lines.length : 0;
             let opacity = 0;
 
             function animateText() {
@@ -1297,6 +1358,11 @@ OUTPUT FORMAT:
             if (e.key === "Enter") els.btnConsult.click();
         });
 
+        window.addEventListener("resize", () => {
+            if (els.canvasContainer.dataset.state === "answer") renderPassageOnCanvas(state.answerText);
+            else if (els.canvasContainer.dataset.state === "loading" && state.animationId === null) startLoadingAnimation();
+        });
+
         els.btnConsult.addEventListener("click", async () => {
             const query = els.queryInput.value.trim();
             if (!query) return;
@@ -1336,6 +1402,10 @@ OUTPUT FORMAT:
         async function init() {
             renderChip();
             setMode(state.mode);
+            // Canvas needs the actual font before measuring its handwritten lines.
+            document.fonts.load(answerTypography().font).then(() => {
+                if (els.canvasContainer.dataset.state === "answer") renderPassageOnCanvas(state.answerText);
+            }).catch(() => { /* Keep the cursive fallback available offline. */ });
             try {
                 const response = await fetch("dylan_1961_1980.txt");
                 if (!response.ok) throw new Error("File not found");
