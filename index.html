@@ -85,11 +85,6 @@
             gap: 6px;
         }
 
-        .source {
-            font-size: 13px;
-            color: var(--muted);
-        }
-
         /* ─── Controls ───────────────────────────── */
         .icon-btn {
             display: inline-flex;
@@ -118,20 +113,10 @@
             flex-shrink: 0;
         }
 
-        .chip {
-            border-color: var(--line);
-            max-width: 220px;
-        }
-
-        .chip span {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
         .modes {
             display: flex;
             gap: 18px;
+            margin-top: 24px;
             font-size: 13px;
         }
 
@@ -476,9 +461,6 @@
                 font-size: 19px;
             }
 
-            .chip {
-                max-width: 124px;
-            }
         }
     </style>
 </head>
@@ -490,17 +472,15 @@
             <header class="topbar">
                 <h1>Personal Zen</h1>
                 <div class="topbar-actions">
-                    <button type="button" class="icon-btn chip" id="btnModel" aria-haspopup="dialog"
-                        title="AI model">
-                        <i data-lucide="sliders-horizontal"></i><span id="chipModel">model</span>
+                    <button type="button" class="icon-btn" id="btnModel" aria-haspopup="dialog"
+                        title="Model settings" aria-label="Model settings">
+                        <i data-lucide="eye" aria-hidden="true"></i>
                     </button>
                     <button type="button" class="icon-btn" id="btnUploadCustom" title="Load custom text">
                         <i data-lucide="file-plus-2"></i>
                     </button>
                 </div>
             </header>
-
-            <p class="source" id="displayTitle" style="margin:14px 0 22px;">Loading…</p>
 
             <div class="modes" role="group" aria-label="Selection mode">
                 <button type="button" class="mode-btn" id="modeBM25" aria-pressed="true">
@@ -664,7 +644,6 @@
             btnLoadText: document.getElementById("btnLoadText"),
             btnUploadCustom: document.getElementById("btnUploadCustom"),
             btnCancelUpload: document.getElementById("btnCancelUpload"),
-            displayTitle: document.getElementById("displayTitle"),
             queryInput: document.getElementById("queryInput"),
             btnConsult: document.getElementById("btnConsult"),
             canvasContainer: document.getElementById("canvasContainer"),
@@ -676,7 +655,6 @@
             modeAI: document.getElementById("modeAI"),
             modeZen: document.getElementById("modeZen"),
             btnModel: document.getElementById("btnModel"),
-            chipModel: document.getElementById("chipModel"),
             status: document.getElementById("status")
         };
 
@@ -715,7 +693,7 @@
             try {
                 localStorage.setItem(LS_AI, JSON.stringify(state.ai));
             } catch (e) { /* private mode: settings simply do not persist */ }
-            renderChip();
+            renderModelButton();
         }
 
         // Groups a provider's curated models by capability tier; anything the
@@ -1054,9 +1032,8 @@ OUTPUT FORMAT:
             return picked;
         }
 
-        // ─── Render: chip + dialog ───────────────────
-        function renderChip() {
-            els.chipModel.textContent = state.ai.model;
+        // ─── Render: model settings ──────────────────
+        function renderModelButton() {
             els.btnModel.title = `${AI_CATALOG.providers[state.ai.provider].label} · ${state.ai.model}`;
         }
 
@@ -1518,7 +1495,6 @@ OUTPUT FORMAT:
             cancelConsultation(true);
             state.text = els.sourceText.value;
             state.title = els.docTitle.value || "Untitled Text";
-            els.displayTitle.textContent = state.title;
             els.stepUpload.classList.add("hidden");
             els.stepOracle.classList.remove("hidden");
         });
@@ -1579,7 +1555,7 @@ OUTPUT FORMAT:
 
         // ─── Init ────────────────────────────────────
         async function init() {
-            renderChip();
+            renderModelButton();
             setMode(state.mode);
             loadHandwriting().catch(() => { /* Answers stay readable if the CDN is unavailable. */ });
             document.fonts.load(answerTypography().font).catch(() => {});
@@ -1587,9 +1563,8 @@ OUTPUT FORMAT:
                 const response = await fetch("dylan_1961_1980.txt");
                 if (!response.ok) throw new Error("File not found");
                 state.text = await response.text();
-                els.displayTitle.textContent = state.title;
             } catch (e) {
-                els.displayTitle.textContent = "No text loaded";
+                els.status.textContent = "No text loaded. Please upload a text file.";
                 console.error("Could not load default file:", e);
             }
         }
