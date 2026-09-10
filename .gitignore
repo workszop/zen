@@ -1,0 +1,9 @@
+# Intermediate working artifacts, never part of the deliverable
+mockups/
+plans/
+superpowers/
+scratch/
+progress.md
+review*.md
+*.plan.md
+*.draft.*
