@@ -4,16 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Zen - Canvas Edition</title>
+    <title>Personal Zen</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display:ital@0;1&display=swap">
+    <script defer src="https://cdn.jsdelivr.net/npm/lucide@1.41.0/dist/umd/lucide.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap');
-
+        /* ─── Tokens ─────────────────────────────── */
         :root {
-            --bg-color: #fafafa;
-            --text-color: #1a1a1a;
-            --accent-color: #1a1a1a;
-            --border-color: #e5e5e5;
-            --white: #ffffff;
+            --bg: #fbfaf8;
+            --surface: #ffffff;
+            --ink: #17161a;
+            --muted: #6f6a63;
+            --line: #e7e3dc;
+            --accent: #17161a;
+            --focus: rgba(23, 22, 26, 0.08);
+            --font-body: "DM Sans", system-ui, sans-serif;
+            --font-display: "DM Serif Display", Georgia, serif;
+            --radius: 10px;
         }
 
         * {
@@ -23,156 +31,186 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: var(--bg-color);
-            font-family: "DM Sans", sans-serif;
-            color: var(--text-color);
             display: flex;
             flex-direction: column;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.5;
         }
 
-        /* Layout */
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 60px 24px;
+        /* ─── Layout ─────────────────────────────── */
+        .page {
+            flex: 1;
             width: 100%;
-            position: relative;
-            z-index: 2;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 48px 24px 72px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
         }
 
         h1 {
-            font-family: "DM Serif Display", serif;
-            font-size: 32px;
+            font-family: var(--font-display);
+            font-size: 26px;
             font-weight: 400;
-            margin-bottom: 40px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
+            margin: 0;
         }
 
-        /* Forms & UI */
-        .input-group {
-            margin-bottom: 24px;
-        }
-
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        textarea {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 15px;
-            outline: none;
-            transition: 0.2s;
-            background: var(--white);
-        }
-
-        input:focus,
-        textarea:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-        }
-
-        textarea {
-            height: 150px;
-            resize: vertical;
-        }
-
-        button {
-            padding: 14px 24px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 15px;
-            transition: 0.2s;
-        }
-
-        .btn-primary {
-            background: var(--accent-color);
-            color: white;
-            width: 100%;
-        }
-
-        .btn-primary:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: white;
-            border: 1px solid var(--border-color);
-            color: #666;
-        }
-
-        .btn-secondary:hover {
-            border-color: #333;
-            color: #333;
-        }
-
-        /* Mode Toggle */
-        .mode-toggle {
+        .topbar-actions {
             display: flex;
-            gap: 10px;
-            margin-bottom: 24px;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .source {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* ─── Controls ───────────────────────────── */
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 10px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            background: none;
+            color: var(--muted);
+            font: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.18s ease;
+        }
+
+        .icon-btn:hover {
+            color: var(--ink);
+            border-color: var(--line);
+        }
+
+        .icon-btn .lucide {
+            width: 16px;
+            height: 16px;
+            stroke-width: 1.5;
+        }
+
+        .chip {
+            border-color: var(--line);
+            max-width: 220px;
+        }
+
+        .chip span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .modes {
+            display: flex;
+            gap: 18px;
+            font-size: 13px;
         }
 
         .mode-btn {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 0 4px;
+            border: 0;
+            border-bottom: 1px solid transparent;
+            background: none;
+            color: var(--muted);
+            font: inherit;
             cursor: pointer;
-            text-align: center;
-            transition: 0.2s;
+            transition: 0.18s ease;
         }
 
-        .mode-btn.active {
-            border-color: var(--accent-color);
-            background: var(--accent-color);
-            color: white;
+        .mode-btn .lucide {
+            width: 15px;
+            height: 15px;
+            stroke-width: 1.5;
         }
 
-        .mode-btn:hover:not(.active) {
-            border-color: #999;
+        .mode-btn:hover {
+            color: var(--ink);
         }
 
-        .mode-label {
-            font-weight: 500;
-            font-size: 14px;
+        .mode-btn[aria-pressed="true"] {
+            color: var(--ink);
+            border-bottom-color: var(--ink);
         }
 
-        .mode-desc {
-            font-size: 11px;
-            color: #888;
-            margin-top: 4px;
+        .ask {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 10px;
+            transition: border-color 0.18s ease;
         }
 
-        .mode-btn.active .mode-desc {
-            color: rgba(255, 255, 255, 0.7);
+        .ask:focus-within {
+            border-bottom-color: var(--ink);
         }
 
-        /* Canvas Container */
-        .canvas-wrapper {
-            position: relative;
+        .ask input {
+            flex: 1;
+            border: 0;
+            background: none;
+            font-family: var(--font-display);
+            font-size: 22px;
+            color: var(--ink);
+            outline: none;
+            min-width: 0;
+        }
+
+        .ask input::placeholder {
+            color: var(--muted);
+            opacity: 0.6;
+        }
+
+        .ask button {
+            flex: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: none;
+            color: var(--ink);
+            cursor: pointer;
+            transition: 0.18s ease;
+        }
+
+        .ask button:hover {
+            background: var(--accent);
+            color: var(--surface);
+            border-color: var(--accent);
+        }
+
+        .ask button .lucide {
+            width: 18px;
+            height: 18px;
+            stroke-width: 1.5;
+        }
+
+        /* ─── Canvas ─────────────────────────────── */
+        .canvas-wrap {
+            display: none;
             width: 100%;
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            overflow: visible;
-            margin-top: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
 
         canvas {
@@ -180,19 +218,187 @@
             width: 100%;
         }
 
-        /* Utility */
+        /* ─── Custom text panel ──────────────────── */
+        .field {
+            display: block;
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"].boxed,
+        textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface);
+            color: var(--ink);
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            transition: 0.18s ease;
+        }
+
+        input[type="text"].boxed:focus,
+        textarea:focus {
+            border-color: var(--ink);
+            box-shadow: 0 0 0 3px var(--focus);
+        }
+
+        textarea {
+            height: 180px;
+            resize: vertical;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 16px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: none;
+            color: var(--ink);
+            font: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.18s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            border-color: var(--ink);
+        }
+
+        .btn .lucide {
+            width: 16px;
+            height: 16px;
+            stroke-width: 1.5;
+        }
+
+        .btn-solid {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--surface);
+        }
+
+        .btn-solid:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* ─── AI model dialog ────────────────────── */
+        .ai-dialog {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 24px;
+            max-width: 26rem;
+            width: calc(100vw - 2rem);
+            background: var(--surface);
+            color: var(--ink);
+            font: inherit;
+            font-family: var(--font-body);
+        }
+
+        .ai-dialog::backdrop {
+            background: rgba(23, 22, 26, 0.35);
+        }
+
+        .ai-dialog h2 {
+            margin: 0 0 18px;
+            font-family: var(--font-display);
+            font-size: 19px;
+            font-weight: 400;
+        }
+
+        .ai-dialog .field[hidden] {
+            display: none;
+        }
+
+        .ai-dialog select,
+        .ai-dialog input {
+            width: 100%;
+            padding: 9px 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface);
+            color: inherit;
+            font: inherit;
+            outline: none;
+        }
+
+        .ai-dialog select:focus,
+        .ai-dialog input:focus {
+            border-color: var(--ink);
+        }
+
+        .ai-providers {
+            display: flex;
+            gap: 6px;
+        }
+
+        .ai-providers button {
+            flex: 1;
+            padding: 8px 0;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: none;
+            color: inherit;
+            font: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.18s ease;
+        }
+
+        .ai-providers button[aria-pressed="true"] {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: var(--surface);
+        }
+
+        .ai-note {
+            font-size: 12px;
+            color: var(--muted);
+            margin: 6px 0 0;
+        }
+
+        .ai-note a {
+            color: inherit;
+        }
+
+        .ai-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* ─── Utility ────────────────────────────── */
         .hidden {
             display: none !important;
         }
 
         .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
+            animation: fadeIn 0.4s ease-out both;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(8px);
             }
 
             to {
@@ -201,355 +407,319 @@
             }
         }
 
-        .search-bar {
-            display: flex;
-            gap: 10px;
-        }
+        @media (max-width: 768px) {
+            .page {
+                padding: 32px 18px 56px;
+            }
 
-        .metadata {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+            .ask input {
+                font-size: 19px;
+            }
 
-        .source-tag {
-            font-size: 13px;
-            font-weight: 500;
-            background: #eee;
-            padding: 4px 10px;
-            border-radius: 4px;
-        }
-
-        .api-key-inline {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .api-key-inline input {
-            flex: 1;
-            padding: 10px 14px;
-        }
-
-        .api-key-inline button {
-            padding: 10px 16px;
-            width: auto;
-        }
-
-        .info-text {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 16px;
-        }
-
-        .loading-text {
-            text-align: center;
-            color: #666;
-            padding: 20px;
+            .chip {
+                max-width: 140px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Personal Zen</h1>
-        </header>
-
+    <main class="page">
         <div id="step-oracle" class="fade-in">
-            <div class="metadata">
-                <span class="source-tag" id="displayTitle">Loading...</span>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-secondary" style="padding: 6px 12px; font-size: 13px;" id="btnUploadCustom">Load
-                        Custom Text</button>
+            <header class="topbar">
+                <h1>Personal Zen</h1>
+                <div class="topbar-actions">
+                    <button type="button" class="icon-btn chip" id="btnModel" aria-haspopup="dialog"
+                        title="AI model">
+                        <i data-lucide="sliders-horizontal"></i><span id="chipModel">model</span>
+                    </button>
+                    <button type="button" class="icon-btn" id="btnUploadCustom" title="Load custom text">
+                        <i data-lucide="file-plus-2"></i>
+                    </button>
                 </div>
+            </header>
+
+            <p class="source" id="displayTitle" style="margin:14px 0 22px;">Loading…</p>
+
+            <div class="modes" role="group" aria-label="Selection mode">
+                <button type="button" class="mode-btn" id="modeBM25" aria-pressed="true">
+                    <i data-lucide="moon"></i>BM25
+                </button>
+                <button type="button" class="mode-btn" id="modeAI" aria-pressed="false">
+                    <i data-lucide="waves"></i>AI
+                </button>
+                <button type="button" class="mode-btn" id="modeZen" aria-pressed="false"
+                    title="Two BM25 and two AI passages, then AI picks one">
+                    <i data-lucide="eye"></i>Zen
+                </button>
             </div>
 
-            <!-- Mode Toggle -->
-            <div class="mode-toggle">
-                <div class="mode-btn active" id="modeBM25" onclick="setMode('bm25')">
-                    <div class="mode-label">🎲 BM25</div>
-                    <div class="mode-desc">No API key needed</div>
-                </div>
-                <div class="mode-btn" id="modeAI" onclick="setMode('ai')">
-                    <div class="mode-label">🤖 AI Selection</div>
-                    <div class="mode-desc">Uses Gemini API</div>
-                </div>
+            <div class="ask" style="margin-top:22px;">
+                <input type="text" id="queryInput" placeholder="What seeks an answer?" aria-label="Your question">
+                <button type="button" id="btnConsult" title="Consult" aria-label="Consult">
+                    <i data-lucide="arrow-right"></i>
+                </button>
             </div>
 
-            <!-- API Key (only shown in AI mode) -->
-            <div id="apiKeySection" class="hidden">
-                <div class="api-key-inline">
-                    <input type="password" id="apiKey" placeholder="Gemini API Key">
-                    <button class="btn-secondary" id="btnSaveKey">Save</button>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>Your Question</label>
-                <div class="search-bar">
-                    <input type="text" id="queryInput" placeholder="What seeks an answer?">
-                    <button class="btn-primary" style="width: auto;" id="btnConsult">Consult</button>
-                </div>
-            </div>
-
-            <div class="canvas-wrapper" id="canvasContainer" style="display:none;">
+            <div class="canvas-wrap" id="canvasContainer">
                 <canvas id="oracleCanvas"></canvas>
             </div>
+            <p class="ai-note" id="status" role="status" aria-live="polite"></p>
         </div>
 
-        <!-- Custom Upload Modal -->
+        <!-- Custom text -->
         <div id="step-upload" class="hidden">
-            <div class="input-group">
-                <label>Title</label>
-                <input type="text" id="docTitle" placeholder="e.g. Meditations by Marcus Aurelius">
+            <header class="topbar" style="margin-bottom:24px;">
+                <h1>Custom text</h1>
+                <button type="button" class="icon-btn" id="btnCancelUpload" title="Back">
+                    <i data-lucide="x"></i>
+                </button>
+            </header>
+            <label class="field">
+                <span>Title</span>
+                <input type="text" class="boxed" id="docTitle" placeholder="e.g. Meditations by Marcus Aurelius">
+            </label>
+            <label class="field">
+                <span>Source text</span>
+                <textarea id="sourceText" placeholder="Paste the text you wish to consult…"></textarea>
+            </label>
+            <div class="row">
+                <button type="button" class="btn" id="btnPickFile">
+                    <i data-lucide="upload"></i>Upload .txt
+                </button>
+                <input type="file" id="fileInput" accept=".txt" hidden>
+                <button type="button" class="btn btn-solid" id="btnLoadText" disabled>
+                    <i data-lucide="check"></i>Load text
+                </button>
             </div>
-            <div class="input-group">
-                <label>Source Text</label>
-                <textarea id="sourceText" placeholder="Paste the text you wish to consult..."></textarea>
-            </div>
-            <div class="input-group" style="display:flex; gap:10px;">
-                <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">Upload
-                    .txt</button>
-                <input type="file" id="fileInput" accept=".txt" style="display:none">
-                <button class="btn-secondary" id="btnCancelUpload">Cancel</button>
-            </div>
-            <button class="btn-primary" id="btnLoadText" disabled>Load Text</button>
         </div>
-    </div>
+    </main>
 
     <script>
-        // --- APP STATE ---
+        // ─── Constants ───────────────────────────────
+        // AI provider catalogue, mirroring slidegen's ai-models.js. Update the
+        // model IDs here; the request shapes live in PROVIDER_REQUESTS below.
+        const AI_CATALOG = {
+            defaultProvider: "openai",
+            providers: {
+                gemini: {
+                    label: "Gemini",
+                    models: ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite-preview"],
+                    // Gemini 3.6 onward ignores temperature and later generations
+                    // reject it, so sampling goes only to the models that honour it.
+                    samplingSupported: ["gemini-3.5-flash", "gemini-3.1-flash-lite-preview"],
+                    keyPlaceholder: "AIza…",
+                    keyUrl: "https://aistudio.google.com/apikey",
+                    tiers: [
+                        { id: "cheap", test: /(^|-)flash-lite(-|$)/ },
+                        { id: "mid", test: /(^|-)flash(-|$)/ },
+                        { id: "best", test: /(^|-)pro(-|$)/ }
+                    ]
+                },
+                openai: {
+                    label: "OpenAI",
+                    models: ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
+                    defaultModel: "gpt-5.6-luna",
+                    keyPlaceholder: "sk-…",
+                    keyUrl: "https://platform.openai.com/api-keys",
+                    tiers: [
+                        { id: "best", test: /(^|-)sol(-|$)/ },
+                        { id: "mid", test: /(^|-)terra(-|$)/ },
+                        { id: "cheap", test: /(^|-)luna(-|$)/ }
+                    ]
+                },
+                claude: {
+                    label: "Claude",
+                    models: ["claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5"],
+                    // Models that accept thinking:{type:"disabled"}. Picking a passage
+                    // is a selection task, so the whole budget goes to the answer.
+                    thinkingOptional: ["claude-opus-4-8", "claude-sonnet-5"],
+                    keyPlaceholder: "sk-ant-…",
+                    keyUrl: "https://console.anthropic.com/settings/keys",
+                    tiers: [
+                        { id: "best", test: /(^|-)opus(-|$)/ },
+                        { id: "mid", test: /(^|-)sonnet(-|$)/ },
+                        { id: "cheap", test: /(^|-)haiku(-|$)/ }
+                    ]
+                }
+            }
+        };
+
+        const TIER_LABELS = { best: "Best", mid: "Balanced", cheap: "Cost-effective", other: "Other" };
+        const LS_AI = "zen_ai";
+        // 512 cut passages off mid-line; 2048 leaves room for the four-passage
+        // Zen step as well.
+        const MAX_OUTPUT_TOKENS = 2048;
+        const CUSTOM_MODEL = "__custom__";
+
+        // ─── State ───────────────────────────────────
         const state = {
-            key: '',
-            title: 'Bob Dylan 1961-1980',
-            text: '',
-            mode: 'bm25', // 'bm25' or 'ai'
-            isDrawing: false,
+            title: "Bob Dylan 1961-1980",
+            text: "",
+            mode: "bm25", // 'bm25' | 'ai' | 'zen'
+            ai: loadAiSettings(),
             animationId: null
         };
 
-        // --- DOM REFERENCES ---
+        // ─── DOM references ──────────────────────────
         const els = {
-            stepUpload: document.getElementById('step-upload'),
-            stepOracle: document.getElementById('step-oracle'),
-            apiKey: document.getElementById('apiKey'),
-            apiKeySection: document.getElementById('apiKeySection'),
-            btnSaveKey: document.getElementById('btnSaveKey'),
-            docTitle: document.getElementById('docTitle'),
-            sourceText: document.getElementById('sourceText'),
-            fileInput: document.getElementById('fileInput'),
-            btnLoadText: document.getElementById('btnLoadText'),
-            btnUploadCustom: document.getElementById('btnUploadCustom'),
-            btnCancelUpload: document.getElementById('btnCancelUpload'),
-            displayTitle: document.getElementById('displayTitle'),
-            queryInput: document.getElementById('queryInput'),
-            btnConsult: document.getElementById('btnConsult'),
-            canvasContainer: document.getElementById('canvasContainer'),
-            canvas: document.getElementById('oracleCanvas'),
-            modeBM25: document.getElementById('modeBM25'),
-            modeAI: document.getElementById('modeAI')
+            stepUpload: document.getElementById("step-upload"),
+            stepOracle: document.getElementById("step-oracle"),
+            docTitle: document.getElementById("docTitle"),
+            sourceText: document.getElementById("sourceText"),
+            fileInput: document.getElementById("fileInput"),
+            btnPickFile: document.getElementById("btnPickFile"),
+            btnLoadText: document.getElementById("btnLoadText"),
+            btnUploadCustom: document.getElementById("btnUploadCustom"),
+            btnCancelUpload: document.getElementById("btnCancelUpload"),
+            displayTitle: document.getElementById("displayTitle"),
+            queryInput: document.getElementById("queryInput"),
+            btnConsult: document.getElementById("btnConsult"),
+            canvasContainer: document.getElementById("canvasContainer"),
+            canvas: document.getElementById("oracleCanvas"),
+            modeBM25: document.getElementById("modeBM25"),
+            modeAI: document.getElementById("modeAI"),
+            modeZen: document.getElementById("modeZen"),
+            btnModel: document.getElementById("btnModel"),
+            chipModel: document.getElementById("chipModel"),
+            status: document.getElementById("status")
         };
 
-        const ctx = els.canvas.getContext('2d');
+        const ctx = els.canvas.getContext("2d");
+        const aiDialog = document.createElement("dialog");
+        aiDialog.className = "ai-dialog";
+        document.body.appendChild(aiDialog);
 
-        // --- INITIALIZATION ---
-        async function init() {
-            try {
-                const response = await fetch('dylan_1961_1980.txt');
-                if (!response.ok) throw new Error('File not found');
-                state.text = await response.text();
-                state.title = 'Bob Dylan 1961-1980';
-                els.displayTitle.textContent = state.title;
-            } catch (e) {
-                els.displayTitle.textContent = 'No text loaded';
-                console.error('Could not load default file:', e);
-            }
-        }
-        init();
-
-        // --- MODE TOGGLE ---
-        function setMode(mode) {
-            state.mode = mode;
-            els.modeBM25.classList.toggle('active', mode === 'bm25');
-            els.modeAI.classList.toggle('active', mode === 'ai');
-            els.apiKeySection.classList.toggle('hidden', mode !== 'ai');
+        // ─── Helpers: AI settings ────────────────────
+        function defaultModelFor(providerId) {
+            const p = AI_CATALOG.providers[providerId];
+            return p.defaultModel || p.models[0];
         }
 
-        // --- EVENT LISTENERS ---
-
-        // API Key
-        els.btnSaveKey.addEventListener('click', () => {
-            state.key = els.apiKey.value.trim();
-            if (state.key) {
-                els.btnSaveKey.textContent = '✓ Saved';
-                setTimeout(() => els.btnSaveKey.textContent = 'Save', 2000);
-            }
-        });
-
-        // Custom Upload
-        els.btnUploadCustom.addEventListener('click', () => {
-            els.stepOracle.classList.add('hidden');
-            els.stepUpload.classList.remove('hidden');
-        });
-
-        els.btnCancelUpload.addEventListener('click', () => {
-            els.stepUpload.classList.add('hidden');
-            els.stepOracle.classList.remove('hidden');
-        });
-
-        els.sourceText.addEventListener('input', () => {
-            els.btnLoadText.disabled = !els.sourceText.value.trim();
-        });
-
-        els.fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                els.sourceText.value = ev.target.result;
-                els.docTitle.value = file.name.replace('.txt', '');
-                els.btnLoadText.disabled = false;
+        function loadAiSettings() {
+            const fallback = {
+                provider: AI_CATALOG.defaultProvider,
+                model: defaultModelFor(AI_CATALOG.defaultProvider),
+                keys: { gemini: "", openai: "", claude: "" }
             };
-            reader.readAsText(file);
-        });
-
-        els.btnLoadText.addEventListener('click', () => {
-            state.text = els.sourceText.value;
-            state.title = els.docTitle.value || 'Untitled Text';
-            els.displayTitle.textContent = state.title;
-            els.stepUpload.classList.add('hidden');
-            els.stepOracle.classList.remove('hidden');
-        });
-
-        // Oracle
-        els.btnConsult.addEventListener('click', async () => {
-            if (!els.queryInput.value.trim()) return;
-            if (!state.text) {
-                renderPassageOnCanvas("No text loaded. Please upload a text file.");
-                return;
-            }
-
-            const query = els.queryInput.value;
-            startLoadingAnimation();
-
             try {
-                let passage;
-                if (state.mode === 'bm25') {
-                    passage = bm25Search(query);
-                } else {
-                    if (!state.key) {
-                        throw new Error("Please enter your Gemini API key");
-                    }
-                    passage = await fetchPassageAI(query);
-                }
-                renderPassageOnCanvas(passage);
+                const raw = JSON.parse(localStorage.getItem(LS_AI) || "null");
+                if (!raw || !AI_CATALOG.providers[raw.provider]) return fallback;
+                return {
+                    provider: raw.provider,
+                    model: raw.model || defaultModelFor(raw.provider),
+                    keys: { ...fallback.keys, ...(raw.keys || {}) }
+                };
             } catch (e) {
-                renderPassageOnCanvas("The Oracle is silent. (Error: " + e.message + ")");
+                return fallback;
             }
-        });
-
-        // --- BM25 ALGORITHM ---
-        function bm25Search(query) {
-            const k1 = 1.5;
-            const b = 0.75;
-
-            // Tokenize and normalize
-            const tokenize = (text) => text.toLowerCase().match(/\b\w+\b/g) || [];
-
-            // Split text into passages (2-3 consecutive lines)
-            const lines = state.text.split('\n').filter(l => l.trim() && !l.startsWith('Title:') && l !== '---');
-            const passages = [];
-            for (let i = 0; i < lines.length - 1; i++) {
-                // Create passages of 2-3 lines
-                const numLines = 2 + Math.floor(Math.random() * 2); // 2 or 3 lines
-                const passageLines = lines.slice(i, i + numLines);
-                if (passageLines.length >= 2) {
-                    passages.push(passageLines.join('\n'));
-                }
-            }
-
-            if (passages.length === 0) return "No passages found.";
-
-            // Calculate document lengths
-            const docLengths = passages.map(p => tokenize(p).length);
-            const avgDocLength = docLengths.reduce((a, b) => a + b, 0) / docLengths.length;
-
-            // Build IDF
-            const queryTokens = tokenize(query);
-            const N = passages.length;
-            const idf = {};
-
-            for (const term of queryTokens) {
-                const docsWithTerm = passages.filter(p => tokenize(p).includes(term)).length;
-                idf[term] = Math.log((N - docsWithTerm + 0.5) / (docsWithTerm + 0.5) + 1);
-            }
-
-            // Score each passage
-            const scores = passages.map((passage, idx) => {
-                const tokens = tokenize(passage);
-                const termFreq = {};
-                tokens.forEach(t => termFreq[t] = (termFreq[t] || 0) + 1);
-
-                let score = 0;
-                for (const term of queryTokens) {
-                    const tf = termFreq[term] || 0;
-                    const docLen = docLengths[idx];
-                    const numerator = tf * (k1 + 1);
-                    const denominator = tf + k1 * (1 - b + b * (docLen / avgDocLength));
-                    score += (idf[term] || 0) * (numerator / denominator);
-                }
-                return { passage, score };
-            });
-
-            // Sort by score and add some randomness among top results
-            scores.sort((a, b) => b.score - a.score);
-            const topN = Math.min(10, scores.length);
-            const topScores = scores.slice(0, topN).filter(s => s.score > 0);
-
-            if (topScores.length === 0) {
-                // If no matches, return random passage
-                const randomIdx = Math.floor(Math.random() * passages.length);
-                return passages[randomIdx];
-            }
-
-            // Pick randomly from top results for variety
-            const randomTop = Math.floor(Math.random() * Math.min(3, topScores.length));
-            return topScores[randomTop].passage;
         }
 
-        // --- AI PASSAGE FETCHING ---
+        function saveAiSettings() {
+            try {
+                localStorage.setItem(LS_AI, JSON.stringify(state.ai));
+            } catch (e) { /* private mode: settings simply do not persist */ }
+            renderChip();
+        }
+
+        // Groups a provider's curated models by capability tier; anything the
+        // tier patterns do not claim falls into "other" so nothing disappears.
+        function groupModels(providerId) {
+            const p = AI_CATALOG.providers[providerId];
+            const groups = new Map();
+            for (const model of p.models) {
+                const tier = (p.tiers.find(t => t.test.test(model)) || { id: "other" }).id;
+                if (!groups.has(tier)) groups.set(tier, []);
+                groups.get(tier).push(model);
+            }
+            return [...groups.entries()];
+        }
+
+        function currentKey() {
+            return (state.ai.keys[state.ai.provider] || "").trim();
+        }
+
+        // ─── Helpers: provider requests ──────────────
+        // Each builder returns {url, headers, body}; each extractor pulls the
+        // text out of that provider's non-streaming response shape.
+        const PROVIDER_REQUESTS = {
+            gemini: {
+                build: ({ key, model, prompt }) => {
+                    const sampling = AI_CATALOG.providers.gemini.samplingSupported.includes(model)
+                        ? { generationConfig: { temperature: 0.7, maxOutputTokens: MAX_OUTPUT_TOKENS } }
+                        : { generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS } };
+                    return {
+                        url: `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+                        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+                        body: { contents: [{ parts: [{ text: prompt }] }], ...sampling }
+                    };
+                },
+                extract: data => data.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join("") || ""
+            },
+            openai: {
+                build: ({ key, model, prompt }) => ({
+                    url: "https://api.openai.com/v1/responses",
+                    headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+                    body: { model, input: [{ role: "user", content: [{ type: "input_text", text: prompt }] }] }
+                }),
+                extract: data => {
+                    if (typeof data.output_text === "string" && data.output_text) return data.output_text;
+                    return (data.output || [])
+                        .flatMap(item => item.content || [])
+                        .filter(part => part.type === "output_text")
+                        .map(part => part.text)
+                        .join("");
+                }
+            },
+            claude: {
+                build: ({ key, model, prompt }) => {
+                    const optional = AI_CATALOG.providers.claude.thinkingOptional.includes(model);
+                    return {
+                        url: "https://api.anthropic.com/v1/messages",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "x-api-key": key,
+                            "anthropic-version": "2023-06-01",
+                            "anthropic-dangerous-direct-browser-access": "true"
+                        },
+                        body: {
+                            model,
+                            max_tokens: MAX_OUTPUT_TOKENS,
+                            ...(optional ? { thinking: { type: "disabled" } } : {}),
+                            messages: [{ role: "user", content: [{ type: "text", text: prompt }] }]
+                        }
+                    };
+                },
+                extract: data => (data.content || []).filter(b => b.type === "text").map(b => b.text).join("")
+            }
+        };
+
+        function providerErrorMessage(data, res) {
+            const msg = data?.error?.message || data?.error?.type || data?.message;
+            return msg || `HTTP ${res.status}`;
+        }
+
+        // ─── Helpers: text ───────────────────────────
         function getRandomParagraphs(text, count = 50) {
             const paragraphs = text
                 .split(/\n\n+|\n(?=[A-Z])/)
                 .map(p => p.trim())
                 .filter(p => p.length > 20 && p.length < 500);
 
-            if (paragraphs.length <= count) {
-                return paragraphs;
-            }
+            if (paragraphs.length <= count) return paragraphs;
 
             const shuffled = [...paragraphs];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-
             return shuffled.slice(0, count);
         }
 
-        async function fetchPassageAI(query) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${state.key}`;
-
-            const randomParagraphs = getRandomParagraphs(state.text, 50);
-            const retrievedContext = randomParagraphs.join('\n\n---\n\n');
-
-            const systemPrompt = `You are given a collection of text (eg. parts of books, lyrics, etc.). When the user asks a question, select 2-3 consecutive lines that feel mysteriously relevant.
+        function buildOraclePrompt(query) {
+            const retrievedContext = getRandomParagraphs(state.text, 50).join("\n\n---\n\n");
+            return `You are given a collection of text (eg. parts of books, lyrics, etc.). When the user asks a question, select 2-3 consecutive lines that feel mysteriously relevant.
 
 TEXT CONTEXT:
 ${retrievedContext}
@@ -560,7 +730,6 @@ SELECTION PRINCIPLES:
 - Prioritize emotional resonance
 - Favor imagery over statements
 
-
 MATCHING HEURISTICS:
 - Try to match the tone and the topic of the question, it shouldn't sound too random.
 
@@ -568,61 +737,380 @@ OUTPUT FORMAT:
 - ALWAYS return 2-3 consecutive lines, never just one line
 - Quote the lines exactly as written, each on its own line
 - No explanation, no commentary`;
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: systemPrompt }] }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 2048
-                    }
-                })
-            });
-
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "No passage found.";
         }
 
-        // --- CANVAS RENDERING ENGINE ---
+        // Zen mode, step 1: the model proposes its own candidates. It answers
+        // in JSON so the passages arrive as separate strings instead of one
+        // blob that would have to be split on guesswork.
+        function buildCandidatesPrompt(query, count) {
+            const retrievedContext = getRandomParagraphs(state.text, 50).join("\n\n---\n\n");
+            return `You are given a collection of text (eg. parts of books, lyrics, etc.). When the user asks a question, select ${count} DIFFERENT passages of 2-3 consecutive lines that feel mysteriously relevant.
 
-        function setupCanvas() {
+TEXT CONTEXT:
+${retrievedContext}
+
+USER QUESTION: "${query}"
+
+SELECTION PRINCIPLES:
+- Prioritize emotional resonance
+- Favor imagery over statements
+- The ${count} passages must come from different places in the text
+
+OUTPUT FORMAT:
+- Reply with JSON only: {"passages": ["...", "..."]}
+- Each passage is 2-3 consecutive lines, quoted exactly as written, lines separated by \\n
+- No explanation, no commentary, no code fences`;
+        }
+
+        // Zen mode, step 2: the model only picks an index. The passage that
+        // gets drawn is the one already in hand, so the wording on screen is
+        // always the source text and never a paraphrase.
+        function buildJudgePrompt(query, candidates) {
+            const list = candidates
+                .map((c, i) => `[${i + 1}]\n${c.text}`)
+                .join("\n\n");
+            return `A person asked an oracle a question. Below are ${candidates.length} candidate passages drawn from one text.
+
+USER QUESTION: "${query}"
+
+CANDIDATES:
+${list}
+
+Choose the single passage that answers the question most resonantly: emotional truth over literal match, imagery over statement.
+
+OUTPUT FORMAT:
+- Reply with JSON only: {"choice": <number>}
+- The number is the index shown in square brackets
+- No explanation, no commentary, no code fences`;
+        }
+
+        // Model output is never evaluated, only parsed. Fences and any prose
+        // around the object are trimmed before JSON.parse sees it.
+        function parseModelJson(text) {
+            const cleaned = String(text).replace(/```(?:json)?/gi, "").trim();
+            const start = cleaned.search(/[[{]/);
+            if (start === -1) return null;
+            const end = Math.max(cleaned.lastIndexOf("}"), cleaned.lastIndexOf("]"));
+            if (end <= start) return null;
+            try {
+                return JSON.parse(cleaned.slice(start, end + 1));
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function callModel(prompt) {
+            const { provider, model } = state.ai;
+            const spec = PROVIDER_REQUESTS[provider];
+            const { url, headers, body } = spec.build({ key: currentKey(), model, prompt });
+
+            const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+            let data = null;
+            try {
+                data = await res.json();
+            } catch (e) { /* non-JSON error body */ }
+            if (!res.ok || data?.error) throw new Error(providerErrorMessage(data, res));
+            return spec.extract(data) || "";
+        }
+
+        async function fetchPassageAI(query) {
+            return (await callModel(buildOraclePrompt(query))) || "No passage found.";
+        }
+
+        async function fetchCandidatesAI(query, count) {
+            const parsed = parseModelJson(await callModel(buildCandidatesPrompt(query, count)));
+            const list = Array.isArray(parsed) ? parsed : parsed?.passages;
+            if (!Array.isArray(list)) return [];
+            return list
+                .map(p => (typeof p === "string" ? p : p?.text || ""))
+                .map(p => p.trim())
+                .filter(Boolean)
+                .slice(0, count);
+        }
+
+        // ─── Zen mode ────────────────────────────────
+        // Step 1 gathers two BM25 passages and two AI passages, step 2 has the
+        // model pick one of the four. BM25 runs first and locally, so a failing
+        // step 1 still leaves something to show.
+        async function consultZen(query, onProgress) {
+            const candidates = bm25TopPassages(query, 2).map(text => ({ text, source: "BM25" }));
+
+            onProgress("Meditating…");
+            let aiFailed = "";
+            try {
+                for (const text of await fetchCandidatesAI(query, 2)) {
+                    candidates.push({ text, source: "AI" });
+                }
+            } catch (e) {
+                aiFailed = e.message;
+            }
+
+            // Two runs can land on the same lines; showing the same passage
+            // twice would make the choice look rigged.
+            const pool = [];
+            const seen = new Set();
+            for (const c of candidates) {
+                const fingerprint = c.text.replace(/\s+/g, " ").toLowerCase();
+                if (seen.has(fingerprint)) continue;
+                seen.add(fingerprint);
+                pool.push(c);
+            }
+
+            if (pool.length === 0) throw new Error(aiFailed || "No passages found.");
+            if (pool.length === 1) {
+                return { passage: pool[0].text, note: aiFailed ? `AI step failed: ${aiFailed}` : "" };
+            }
+
+            onProgress("Wisdoming…");
+            let chosen = pool[0];
+            let judgeFailed = aiFailed;
+            try {
+                const parsed = parseModelJson(await callModel(buildJudgePrompt(query, pool)));
+                const index = Number(parsed?.choice) - 1;
+                if (Number.isInteger(index) && pool[index]) chosen = pool[index];
+            } catch (e) {
+                judgeFailed = e.message;
+            }
+            return { passage: chosen.text, note: judgeFailed ? `AI step failed: ${judgeFailed}` : "" };
+        }
+
+
+        // ─── BM25 ────────────────────────────────────
+        // Ranks every 2-3 line window against the query and returns the whole
+        // sorted list; the callers decide how many of them they want.
+        function bm25Rank(query) {
+            const k1 = 1.5;
+            const b = 0.75;
+            const tokenize = text => text.toLowerCase().match(/\b\w+\b/g) || [];
+
+            const lines = state.text.split("\n").filter(l => l.trim() && !l.startsWith("Title:") && l !== "---");
+            const passages = [];
+            for (let i = 0; i < lines.length - 1; i++) {
+                const numLines = 2 + Math.floor(Math.random() * 2); // 2 or 3 lines
+                const passageLines = lines.slice(i, i + numLines);
+                if (passageLines.length >= 2) passages.push(passageLines.join("\n"));
+            }
+            if (passages.length === 0) return { passages: [], scores: [] };
+
+            const docLengths = passages.map(p => tokenize(p).length);
+            const avgDocLength = docLengths.reduce((a, b2) => a + b2, 0) / docLengths.length;
+
+            const queryTokens = tokenize(query);
+            const N = passages.length;
+            const idf = {};
+            for (const term of queryTokens) {
+                const docsWithTerm = passages.filter(p => tokenize(p).includes(term)).length;
+                idf[term] = Math.log((N - docsWithTerm + 0.5) / (docsWithTerm + 0.5) + 1);
+            }
+
+            const scores = passages.map((passage, idx) => {
+                const tokens = tokenize(passage);
+                const termFreq = {};
+                tokens.forEach(t => termFreq[t] = (termFreq[t] || 0) + 1);
+
+                let score = 0;
+                for (const term of queryTokens) {
+                    const tf = termFreq[term] || 0;
+                    const docLen = docLengths[idx];
+                    score += (idf[term] || 0) * ((tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (docLen / avgDocLength))));
+                }
+                return { passage, score };
+            });
+
+            scores.sort((a, b2) => b2.score - a.score);
+            return { passages, scores };
+        }
+
+        function bm25Search(query) {
+            const { passages, scores } = bm25Rank(query);
+            if (passages.length === 0) return "No passages found.";
+
+            const topScores = scores.slice(0, Math.min(10, scores.length)).filter(s => s.score > 0);
+            if (topScores.length === 0) return passages[Math.floor(Math.random() * passages.length)];
+
+            const randomTop = Math.floor(Math.random() * Math.min(3, topScores.length));
+            return topScores[randomTop].passage;
+        }
+
+        // The top n scoring passages, overlapping windows folded together: the
+        // windows slide one line at a time, so the runners-up are usually the
+        // same lines shifted by one and would fill the pool with near-copies.
+        function bm25TopPassages(query, n) {
+            const { passages, scores } = bm25Rank(query);
+            if (passages.length === 0) return [];
+
+            const picked = [];
+            const usedLines = new Set();
+            const ranked = scores.filter(s => s.score > 0);
+
+            for (const { passage } of ranked) {
+                const lines = passage.split("\n").map(l => l.trim().toLowerCase());
+                if (lines.some(l => usedLines.has(l))) continue;
+                lines.forEach(l => usedLines.add(l));
+                picked.push(passage);
+                if (picked.length === n) return picked;
+            }
+
+            // Nothing matched, or the matches all overlapped: top up at random.
+            while (picked.length < n && picked.length < passages.length) {
+                const candidate = passages[Math.floor(Math.random() * passages.length)];
+                if (!picked.includes(candidate)) picked.push(candidate);
+            }
+            return picked;
+        }
+
+        // ─── Render: chip + dialog ───────────────────
+        function renderChip() {
+            els.chipModel.textContent = state.ai.model;
+            els.btnModel.title = `${AI_CATALOG.providers[state.ai.provider].label} · ${state.ai.model}`;
+        }
+
+        function renderAiDialog() {
+            const info = AI_CATALOG.providers[state.ai.provider];
+            const isCustom = !info.models.includes(state.ai.model);
+
+            aiDialog.innerHTML = `
+                <h2>AI model</h2>
+                <div class="field">
+                    <label>Provider</label>
+                    <div class="ai-providers" role="group"></div>
+                </div>
+                <div class="field">
+                    <label for="aiModelSelect">Model</label>
+                    <select id="aiModelSelect"></select>
+                </div>
+                <div class="field ai-custom" ${isCustom ? "" : "hidden"}>
+                    <label for="aiModelCustom">Model ID</label>
+                    <input id="aiModelCustom" type="text" spellcheck="false" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="aiKey">API key · ${info.label}</label>
+                    <input id="aiKey" type="password" autocomplete="off" spellcheck="false"
+                        placeholder="${info.keyPlaceholder}">
+                    <p class="ai-note">The key stays in this browser (localStorage) and is sent only to the
+                        selected provider. Generate one at
+                        <a href="${info.keyUrl}" target="_blank" rel="noopener">${info.keyUrl.replace("https://", "")}</a>.</p>
+                </div>
+                <div class="ai-actions"><button type="button" class="btn ai-close">Close</button></div>`;
+
+            const providersEl = aiDialog.querySelector(".ai-providers");
+            for (const [id, p] of Object.entries(AI_CATALOG.providers)) {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.textContent = p.label;
+                btn.setAttribute("aria-pressed", String(id === state.ai.provider));
+                btn.addEventListener("click", () => {
+                    if (id === state.ai.provider) return;
+                    state.ai.provider = id;
+                    state.ai.model = defaultModelFor(id);
+                    saveAiSettings();
+                    renderAiDialog();
+                });
+                providersEl.appendChild(btn);
+            }
+
+            const select = aiDialog.querySelector("#aiModelSelect");
+            const customField = aiDialog.querySelector(".ai-custom");
+            const customInput = aiDialog.querySelector("#aiModelCustom");
+
+            for (const [tier, models] of groupModels(state.ai.provider)) {
+                const group = document.createElement("optgroup");
+                group.label = TIER_LABELS[tier] || tier;
+                for (const model of models) {
+                    const opt = document.createElement("option");
+                    opt.value = model;
+                    opt.textContent = model;
+                    group.appendChild(opt);
+                }
+                select.appendChild(group);
+            }
+            const customOpt = document.createElement("option");
+            customOpt.value = CUSTOM_MODEL;
+            customOpt.textContent = "custom model…";
+            select.appendChild(customOpt);
+
+            select.value = isCustom ? CUSTOM_MODEL : state.ai.model;
+            customInput.value = isCustom ? state.ai.model : "";
+
+            select.addEventListener("change", () => {
+                if (select.value === CUSTOM_MODEL) {
+                    customField.hidden = false;
+                    customInput.focus();
+                    if (customInput.value.trim()) state.ai.model = customInput.value.trim();
+                } else {
+                    customField.hidden = true;
+                    state.ai.model = select.value;
+                }
+                saveAiSettings();
+            });
+
+            customInput.addEventListener("input", () => {
+                const value = customInput.value.trim();
+                if (value) {
+                    state.ai.model = value;
+                    saveAiSettings();
+                }
+            });
+
+            const keyInput = aiDialog.querySelector("#aiKey");
+            keyInput.value = state.ai.keys[state.ai.provider] || "";
+            keyInput.addEventListener("input", () => {
+                state.ai.keys[state.ai.provider] = keyInput.value.trim();
+                saveAiSettings();
+            });
+
+            aiDialog.querySelector(".ai-close").addEventListener("click", () => aiDialog.close());
+        }
+
+        // ─── Render: mode + canvas ───────────────────
+        function setMode(mode) {
+            state.mode = mode;
+            els.modeBM25.setAttribute("aria-pressed", String(mode === "bm25"));
+            els.modeAI.setAttribute("aria-pressed", String(mode === "ai"));
+            els.modeZen.setAttribute("aria-pressed", String(mode === "zen"));
+            // Both AI-backed modes are dead without a key, so say so up front
+            // rather than on the first consult.
+            els.status.textContent = mode !== "bm25" && !currentKey()
+                ? `Add your ${AI_CATALOG.providers[state.ai.provider].label} API key in the model settings.`
+                : "";
+        }
+
+        function inkColor() {
+            return getComputedStyle(document.documentElement).getPropertyValue("--ink").trim() || "#17161a";
+        }
+
+        function setupCanvas(height = 400) {
             const dpr = window.devicePixelRatio || 1;
             const rect = els.canvasContainer.getBoundingClientRect();
             els.canvas.width = rect.width * dpr;
-            els.canvas.height = 400 * dpr;
-            els.canvas.style.width = '100%';
-            els.canvas.style.height = '400px';
+            els.canvas.height = height * dpr;
+            els.canvas.style.width = "100%";
+            els.canvas.style.height = height + "px";
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.scale(dpr, dpr);
-            return { width: rect.width, height: 400 };
+            return { width: rect.width, height };
         }
 
         function startLoadingAnimation() {
-            els.canvasContainer.style.display = 'block';
+            els.canvasContainer.style.display = "block";
             if (state.animationId) cancelAnimationFrame(state.animationId);
 
-            // Force reflow to ensure accurate dimensions after display change
-            els.canvasContainer.offsetHeight;
+            // Force reflow so the width read below is the displayed one.
+            void els.canvasContainer.offsetHeight;
 
-            const { width, height } = setupCanvas();
+            const { width, height } = setupCanvas(280);
+            const stroke = inkColor();
             let angle = 0;
 
             function drawEnso() {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.fillStyle = "rgba(251, 250, 248, 0.1)";
                 ctx.fillRect(0, 0, width, height);
 
-                const cx = width / 2;
-                const cy = height / 2;
-                const radius = 60;
-
                 ctx.beginPath();
-                ctx.strokeStyle = '#1a1a1a';
-                ctx.lineWidth = 3;
-                ctx.lineCap = 'round';
-
-                ctx.arc(cx, cy, radius, angle, angle + 0.2);
+                ctx.strokeStyle = stroke;
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.arc(width / 2, height / 2, 52, angle, angle + 0.2);
                 ctx.stroke();
 
                 angle += 0.15;
@@ -633,54 +1121,37 @@ OUTPUT FORMAT:
 
         function renderPassageOnCanvas(text) {
             if (state.animationId) cancelAnimationFrame(state.animationId);
+            els.canvasContainer.style.display = "block";
 
-            const { width } = setupCanvas();
-            ctx.clearRect(0, 0, width, 2000);
+            const { width } = setupCanvas(400);
+            const fontSize = 21;
+            const lineHeight = 36;
+            const maxWidth = width - 8;
+            const startX = 4;
+            const startY = 64;
+            const ink = inkColor();
 
-            const fontSize = 20;
-            const lineHeight = 34;
-            const maxWidth = width - 80;
-            const startX = 40;
-            const startY = 60;
+            ctx.font = `italic 400 ${fontSize}px "DM Serif Display", Georgia, serif`;
 
-            ctx.font = `400 ${fontSize}px "DM Serif Display"`;
-            ctx.fillStyle = '#1a1a1a';
-
-            // Split by actual newlines first, then word-wrap each line
-            const textLines = text.split('\n').filter(line => line.trim());
-            let lines = [];
-
-            for (const textLine of textLines) {
-                const words = textLine.split(' ');
-                let currentLine = words[0] || '';
-
+            const lines = [];
+            for (const textLine of text.split("\n").filter(l => l.trim())) {
+                const words = textLine.split(" ");
+                let currentLine = words[0] || "";
                 for (let i = 1; i < words.length; i++) {
-                    const w = words[i];
-                    const testLine = currentLine + " " + w;
-                    const metrics = ctx.measureText(testLine);
-                    if (metrics.width < maxWidth) {
+                    const testLine = currentLine + " " + words[i];
+                    if (ctx.measureText(testLine).width < maxWidth) {
                         currentLine = testLine;
                     } else {
                         lines.push(currentLine);
-                        currentLine = w;
+                        currentLine = words[i];
                     }
                 }
                 if (currentLine) lines.push(currentLine);
-                lines.push('');
-            }
-            if (lines.length > 0 && lines[lines.length - 1] === '') {
-                lines.pop();
             }
 
-            const totalHeight = Math.max(200, startY + (lines.length * lineHeight) + 60);
-            const dpr = window.devicePixelRatio || 1;
-            els.canvas.height = totalHeight * dpr;
-            els.canvas.style.height = totalHeight + 'px';
-            // Canvas resize resets context, so re-apply transformations
-            ctx.scale(dpr, dpr);
-            ctx.font = `400 ${fontSize}px "DM Serif Display"`;
-            ctx.fillStyle = '#1a1a1a';
-            ctx.clearRect(0, 0, width, totalHeight);
+            const totalHeight = Math.max(200, startY + (lines.length * lineHeight) + 48);
+            setupCanvas(totalHeight);
+            ctx.font = `italic 400 ${fontSize}px "DM Serif Display", Georgia, serif`;
 
             let lineIndex = 0;
             let opacity = 0;
@@ -688,14 +1159,23 @@ OUTPUT FORMAT:
             function animateText() {
                 ctx.clearRect(0, 0, width, totalHeight);
 
+                ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--line").trim() || "#e7e3dc";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(startX, startY - 34);
+                ctx.lineTo(startX + 36, startY - 34);
+                ctx.stroke();
+
                 for (let i = 0; i < lineIndex; i++) {
-                    ctx.fillStyle = `rgba(26, 26, 26, 1)`;
+                    ctx.fillStyle = ink;
                     ctx.fillText(lines[i], startX, startY + (i * lineHeight));
                 }
 
                 if (lineIndex < lines.length) {
-                    ctx.fillStyle = `rgba(26, 26, 26, ${opacity})`;
+                    ctx.globalAlpha = opacity;
+                    ctx.fillStyle = ink;
                     ctx.fillText(lines[lineIndex], startX, startY + (lineIndex * lineHeight));
+                    ctx.globalAlpha = 1;
 
                     opacity += 0.05;
                     if (opacity >= 1) {
@@ -703,18 +1183,117 @@ OUTPUT FORMAT:
                         lineIndex++;
                     }
                     requestAnimationFrame(animateText);
-                } else {
-                    ctx.strokeStyle = '#e5e5e5';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(startX, startY - 40);
-                    ctx.lineTo(startX + 40, startY - 40);
-                    ctx.stroke();
                 }
             }
-
             animateText();
         }
+
+        // ─── Listeners ───────────────────────────────
+        els.modeBM25.addEventListener("click", () => setMode("bm25"));
+        els.modeAI.addEventListener("click", () => setMode("ai"));
+        els.modeZen.addEventListener("click", () => setMode("zen"));
+
+        els.btnModel.addEventListener("click", () => {
+            renderAiDialog();
+            aiDialog.showModal();
+        });
+        aiDialog.addEventListener("close", () => setMode(state.mode));
+
+        els.btnUploadCustom.addEventListener("click", () => {
+            els.stepOracle.classList.add("hidden");
+            els.stepUpload.classList.remove("hidden");
+            els.stepUpload.classList.add("fade-in");
+        });
+
+        els.btnCancelUpload.addEventListener("click", () => {
+            els.stepUpload.classList.add("hidden");
+            els.stepOracle.classList.remove("hidden");
+        });
+
+        els.btnPickFile.addEventListener("click", () => els.fileInput.click());
+
+        els.sourceText.addEventListener("input", () => {
+            els.btnLoadText.disabled = !els.sourceText.value.trim();
+        });
+
+        els.fileInput.addEventListener("change", e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                els.sourceText.value = ev.target.result;
+                els.docTitle.value = file.name.replace(/\.txt$/i, "");
+                els.btnLoadText.disabled = false;
+            };
+            reader.readAsText(file);
+        });
+
+        els.btnLoadText.addEventListener("click", () => {
+            state.text = els.sourceText.value;
+            state.title = els.docTitle.value || "Untitled Text";
+            els.displayTitle.textContent = state.title;
+            els.stepUpload.classList.add("hidden");
+            els.stepOracle.classList.remove("hidden");
+        });
+
+        els.queryInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") els.btnConsult.click();
+        });
+
+        els.btnConsult.addEventListener("click", async () => {
+            const query = els.queryInput.value.trim();
+            if (!query) return;
+            if (!state.text) {
+                renderPassageOnCanvas("No text loaded. Please upload a text file.");
+                return;
+            }
+
+            els.status.textContent = "";
+            startLoadingAnimation();
+
+            try {
+                let passage;
+                let note = "";
+                if (state.mode === "bm25") {
+                    passage = bm25Search(query);
+                } else {
+                    const info = AI_CATALOG.providers[state.ai.provider];
+                    if (!currentKey()) throw new Error(`Add your ${info.label} API key in the model settings.`);
+                    if (state.mode === "zen") {
+                        const result = await consultZen(query, step => els.status.textContent = step);
+                        passage = result.passage;
+                        note = result.note;
+                    } else {
+                        passage = await fetchPassageAI(query);
+                    }
+                }
+                renderPassageOnCanvas(passage);
+                els.status.textContent = note;
+            } catch (e) {
+                renderPassageOnCanvas("The Oracle is silent.");
+                els.status.textContent = e.message;
+            }
+        });
+
+        // ─── Init ────────────────────────────────────
+        async function init() {
+            renderChip();
+            setMode(state.mode);
+            try {
+                const response = await fetch("dylan_1961_1980.txt");
+                if (!response.ok) throw new Error("File not found");
+                state.text = await response.text();
+                els.displayTitle.textContent = state.title;
+            } catch (e) {
+                els.displayTitle.textContent = "No text loaded";
+                console.error("Could not load default file:", e);
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if (window.lucide) lucide.createIcons();
+        });
+        init();
     </script>
 </body>
 
