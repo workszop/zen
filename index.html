@@ -136,10 +136,11 @@
             transition: 0.18s ease;
         }
 
-        .mode-btn .lucide {
+        .mode-btn .mode-icon {
             width: 15px;
             height: 15px;
             stroke-width: 1.5;
+            flex-shrink: 0;
         }
 
         .mode-btn:hover {
@@ -444,14 +445,30 @@
 
             <div class="modes" role="group" aria-label="Selection mode">
                 <button type="button" class="mode-btn" id="modeBM25" aria-pressed="true">
-                    <i data-lucide="moon"></i>BM25
+                    <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 8C1 8 2 2 5 3c2 0 3 2 2 3m10 0c-1-1 0-3 2-3 3-1 4 5 0 5" />
+                        <path d="M12 5c-5 0-9 3-9 8s4 8 9 8 9-3 9-8-4-8-9-8Z" />
+                        <ellipse cx="8" cy="12" rx="2" ry="2.5" />
+                        <ellipse cx="16" cy="12" rx="2" ry="2.5" />
+                        <path d="m10 16 2 1 2-1m-2 1v2" />
+                    </svg>Panda
                 </button>
                 <button type="button" class="mode-btn" id="modeAI" aria-pressed="false">
-                    <i data-lucide="waves"></i>AI
+                    <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M10 4c0-3 4-3 4 0" />
+                        <circle cx="12" cy="6" r="3" />
+                        <path d="M9 11c-2 1-2 5-4 5-3 0-3 4 0 4h14c3 0 3-4 0-4-2 0-2-4-4-5M8 15l4 3 4-3m-4 3-5 2m5-2 5 2" />
+                    </svg>Buddha
                 </button>
                 <button type="button" class="mode-btn" id="modeZen" aria-pressed="false"
-                    title="Two BM25 and two AI passages, then AI picks one">
-                    <i data-lucide="eye"></i>Zen
+                    title="Two Panda and two Buddha passages, then Buddha picks one">
+                    <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 19C5 15 8 8 12 3c4 5 7 12 0 16Z" />
+                        <path d="M9 17C4 16 3 12 3 8c3 0 5 1 6 3m6 6c5-1 6-5 6-9-3 0-5 1-6 3M12 19C6 21 2 18 1 14l4 1m7 4c6 2 10-1 11-5l-4 1" />
+                    </svg>Zen
                 </button>
             </div>
 
@@ -462,7 +479,7 @@
                 </button>
             </div>
 
-            <div class="canvas-wrap" id="canvasContainer">
+            <div class="canvas-wrap" id="canvasContainer" data-state="idle" aria-busy="false">
                 <canvas id="oracleCanvas"></canvas>
             </div>
             <p class="ai-note" id="status" role="status" aria-live="polite"></p>
@@ -1094,34 +1111,73 @@ OUTPUT FORMAT:
         function startLoadingAnimation() {
             els.canvasContainer.style.display = "block";
             if (state.animationId) cancelAnimationFrame(state.animationId);
+            state.animationId = null;
+            els.canvasContainer.dataset.state = "loading";
+            els.canvasContainer.setAttribute("aria-busy", "true");
+            els.status.textContent = "Listening…";
 
-            // Force reflow so the width read below is the displayed one.
-            void els.canvasContainer.offsetHeight;
-
-            const { width, height } = setupCanvas(280);
+            let { width, height } = setupCanvas(280);
             const stroke = inkColor();
-            let angle = 0;
+            const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+            const startedAt = performance.now();
 
-            function drawEnso() {
-                ctx.fillStyle = "rgba(251, 250, 248, 0.1)";
-                ctx.fillRect(0, 0, width, height);
-
-                ctx.beginPath();
+            function drawWater(timestamp) {
+                state.animationId = null;
+                if (els.canvasContainer.getBoundingClientRect().width !== width) {
+                    ({ width, height } = setupCanvas(280));
+                }
+                const phase = reducedMotion.matches ? 0.58 : ((timestamp - startedAt) % 3600) / 3600;
+                const centerX = width / 2;
+                const lakeY = 164;
+                ctx.clearRect(0, 0, width, height);
                 ctx.strokeStyle = stroke;
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.25;
                 ctx.lineCap = "round";
-                ctx.arc(width / 2, height / 2, 52, angle, angle + 0.2);
+                ctx.lineJoin = "round";
+
+                // A still lake, drawn only in ink. Never paint the background.
+                ctx.globalAlpha = 0.3;
+                ctx.beginPath();
+                ctx.moveTo(centerX - 88, lakeY);
+                ctx.lineTo(centerX - 30, lakeY);
+                ctx.moveTo(centerX + 30, lakeY);
+                ctx.lineTo(centerX + 88, lakeY);
                 ctx.stroke();
 
-                angle += 0.15;
-                state.animationId = requestAnimationFrame(drawEnso);
+                if (phase < 0.4) {
+                    const fall = phase / 0.4;
+                    const tipY = 66 + 82 * fall * fall;
+                    ctx.globalAlpha = Math.min(1, fall * 8) * Math.min(1, (1 - fall) * 12);
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, tipY);
+                    ctx.bezierCurveTo(centerX - 2, tipY + 6, centerX - 7, tipY + 9, centerX - 6, tipY + 13);
+                    ctx.bezierCurveTo(centerX - 5, tipY + 20, centerX + 5, tipY + 20, centerX + 6, tipY + 13);
+                    ctx.bezierCurveTo(centerX + 7, tipY + 9, centerX + 2, tipY + 6, centerX, tipY);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+
+                // Fixed, fine rings fade in succession after the drop lands.
+                for (let ring = 0; ring < 3; ring++) {
+                    const ripple = (phase - 0.36 - ring * 0.09) / 0.36;
+                    if (ripple <= 0 || ripple >= 1) continue;
+                    ctx.globalAlpha = Math.sin(ripple * Math.PI) * (0.5 - ring * 0.1);
+                    ctx.beginPath();
+                    ctx.ellipse(centerX, lakeY, 16 + ring * 19, 3 + ring * 4, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+                if (!reducedMotion.matches) state.animationId = requestAnimationFrame(drawWater);
             }
-            drawEnso();
+            drawWater(startedAt);
         }
 
         function renderPassageOnCanvas(text) {
             if (state.animationId) cancelAnimationFrame(state.animationId);
+            state.animationId = null;
             els.canvasContainer.style.display = "block";
+            els.canvasContainer.dataset.state = "answer";
+            els.canvasContainer.setAttribute("aria-busy", "false");
 
             const { width } = setupCanvas(400);
             const fontSize = 21;
@@ -1157,6 +1213,7 @@ OUTPUT FORMAT:
             let opacity = 0;
 
             function animateText() {
+                state.animationId = null;
                 ctx.clearRect(0, 0, width, totalHeight);
 
                 ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--line").trim() || "#e7e3dc";
@@ -1182,7 +1239,7 @@ OUTPUT FORMAT:
                         opacity = 0;
                         lineIndex++;
                     }
-                    requestAnimationFrame(animateText);
+                    state.animationId = requestAnimationFrame(animateText);
                 }
             }
             animateText();
