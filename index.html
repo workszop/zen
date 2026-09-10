@@ -3,8 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Personal Zen</title>
+
+    <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Zen" />
+    <meta name="theme-color" content="#fbfaf8" />
+    <link rel="manifest" href="site.webmanifest" />
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Licorice&display=swap">
@@ -19,6 +27,7 @@
             --line: #e7e3dc;
             --accent: #17161a;
             --focus: rgba(23, 22, 26, 0.08);
+            --backdrop: rgba(23, 22, 26, 0.35);
             --font-body: "DM Sans", system-ui, sans-serif;
             --font-display: "DM Serif Display", Georgia, serif;
             --font-answer: "Licorice", cursive;
@@ -32,6 +41,11 @@
             --font-controls-size: 12px;
             --icon-size: 22px;
             --mode-icon-size: 32px;
+            --title-size: 26px;
+            --question-size: 22px;
+            --input-size: 16px;
+            --touch-size: 44px;
+            --bamboo-height: 280px;
             --radius: 10px;
         }
 
@@ -42,6 +56,7 @@
         body {
             margin: 0;
             min-height: 100vh;
+            min-height: 100svh;
             display: flex;
             flex-direction: column;
             background: var(--bg);
@@ -64,8 +79,8 @@
         }
 
         .topbar {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
@@ -73,7 +88,7 @@
 
         h1 {
             font-family: var(--font-display);
-            font-size: 26px;
+            font-size: var(--title-size);
             font-weight: 400;
             letter-spacing: -0.3px;
             margin: 0;
@@ -89,6 +104,9 @@
         .icon-btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
+            min-width: var(--touch-size);
+            min-height: var(--touch-size);
             gap: 6px;
             padding: 7px 10px;
             border: 1px solid transparent;
@@ -123,6 +141,7 @@
         .mode-btn {
             display: inline-flex;
             align-items: center;
+            min-height: var(--touch-size);
             gap: 6px;
             padding: 0 0 4px;
             border: 0;
@@ -168,10 +187,11 @@
             border: 0;
             background: none;
             font-family: var(--font-display);
-            font-size: 22px;
+            font-size: var(--question-size);
             color: var(--ink);
             outline: none;
             min-width: 0;
+            min-height: var(--touch-size);
         }
 
         .ask input::placeholder {
@@ -184,8 +204,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 38px;
-            height: 38px;
+            width: var(--touch-size);
+            height: var(--touch-size);
             border: 1px solid var(--line);
             border-radius: 999px;
             background: none;
@@ -210,6 +230,10 @@
         .canvas-wrap {
             display: none;
             width: 100%;
+        }
+
+        .canvas-wrap[data-state="loading"] {
+            height: var(--bamboo-height);
         }
 
         canvas {
@@ -237,6 +261,7 @@
         }
 
         .finish-answer {
+            min-height: var(--touch-size);
             padding: 6px 0;
             border: 0;
             background: none;
@@ -308,6 +333,8 @@
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
+            min-height: var(--touch-size);
             gap: 7px;
             padding: 9px 16px;
             border: 1px solid var(--line);
@@ -343,11 +370,21 @@
 
         /* ─── AI model dialog ────────────────────── */
         .ai-dialog {
+            position: fixed;
+            top: calc(var(--viewport-top, 0px) + var(--viewport-height, 100dvh) / 2);
+            bottom: auto;
+            margin: 0 auto;
+            transform: translateY(-50%);
             border: 1px solid var(--line);
             border-radius: 14px;
             padding: 24px;
             max-width: 26rem;
             width: calc(100vw - 2rem);
+            max-height: calc(100vh - 2rem);
+            max-height: calc(var(--viewport-height, 100dvh) - 2rem);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scroll-padding-block: 16px 76px;
             background: var(--surface);
             color: var(--ink);
             font: inherit;
@@ -355,7 +392,7 @@
         }
 
         .ai-dialog::backdrop {
-            background: rgba(23, 22, 26, 0.35);
+            background: var(--backdrop);
         }
 
         .ai-dialog h2 {
@@ -378,6 +415,8 @@
             background: var(--surface);
             color: inherit;
             font: inherit;
+            font-size: var(--input-size);
+            min-height: var(--touch-size);
             outline: none;
         }
 
@@ -393,6 +432,8 @@
 
         .ai-providers button {
             flex: 1;
+            min-height: var(--touch-size);
+            min-width: 0;
             padding: 8px 0;
             border: 1px solid var(--line);
             border-radius: 8px;
@@ -414,6 +455,7 @@
             font-size: 12px;
             color: var(--muted);
             margin: 6px 0 0;
+            overflow-wrap: anywhere;
         }
 
         .ai-note a {
@@ -424,6 +466,19 @@
             display: flex;
             justify-content: flex-end;
             margin-top: 20px;
+            position: sticky;
+            bottom: -1px;
+            padding-top: 8px;
+            background: var(--surface);
+        }
+
+        button:focus-visible {
+            outline: 2px solid var(--ink);
+            outline-offset: 3px;
+        }
+
+        button {
+            touch-action: manipulation;
         }
 
         /* ─── Utility ────────────────────────────── */
@@ -449,18 +504,55 @@
 
         @media (max-width: 768px) {
             :root {
-                --answer-size: 32px;
-                --answer-line-height: 44px;
+                --title-size: clamp(23px, 6vw, 26px);
+                --question-size: clamp(19px, 4.8vw, 22px);
+                --answer-size: clamp(32px, 8.2vw, 36px);
+                --answer-line-height: 1.35;
+                --bamboo-height: clamp(160px, 32svh, 240px);
             }
 
             .page {
-                padding: 32px 18px 56px;
+                padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
             }
 
-            .ask input {
-                font-size: 19px;
+            .topbar { gap: 8px; }
+            .topbar-actions { gap: 2px; }
+
+            .modes {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+                margin-top: 20px;
             }
 
+            .mode-btn {
+                justify-content: center;
+                min-height: 52px;
+                padding: 4px 0 8px;
+            }
+
+            .handwritten-answer {
+                margin-top: 24px;
+                padding: 8px 4px 20px;
+            }
+
+            input[type="text"].boxed,
+            textarea { font-size: var(--input-size); }
+
+            .ai-dialog {
+                top: calc(var(--viewport-top, 0px) + max(12px, env(safe-area-inset-top)));
+                transform: none;
+                width: calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));
+                max-height: calc(var(--viewport-height, 100dvh) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+                padding: 20px;
+            }
+
+            .row > .btn { flex: 1 1 auto; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .fade-in { animation: none; }
+            button { transition: none; }
         }
     </style>
 </head>
@@ -476,7 +568,7 @@
                         title="Model settings" aria-label="Model settings">
                         <i data-lucide="eye" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="icon-btn" id="btnUploadCustom" title="Load custom text">
+                    <button type="button" class="icon-btn" id="btnUploadCustom" title="Load custom text" aria-label="Load custom text">
                         <i data-lucide="file-plus-2"></i>
                     </button>
                 </div>
@@ -513,7 +605,7 @@
             </div>
 
             <div class="ask" style="margin-top:22px;">
-                <input type="text" id="queryInput" placeholder="What seeks an answer?" aria-label="Your question">
+                <input type="text" id="queryInput" placeholder="What seeks an answer?" aria-label="Your question" enterkeyhint="send">
                 <button type="button" id="btnConsult" title="Consult" aria-label="Consult">
                     <i data-lucide="arrow-right"></i>
                 </button>
@@ -533,7 +625,7 @@
         <div id="step-upload" class="hidden">
             <header class="topbar" style="margin-bottom:24px;">
                 <h1>Custom text</h1>
-                <button type="button" class="icon-btn" id="btnCancelUpload" title="Back">
+                <button type="button" class="icon-btn" id="btnCancelUpload" title="Back" aria-label="Back">
                     <i data-lucide="x"></i>
                 </button>
             </header>
@@ -661,6 +753,7 @@
         const ctx = els.canvas.getContext("2d");
         const aiDialog = document.createElement("dialog");
         aiDialog.className = "ai-dialog";
+        aiDialog.setAttribute("aria-labelledby", "aiDialogTitle");
         document.body.appendChild(aiDialog);
 
         // ─── Helpers: AI settings ────────────────────
@@ -1037,15 +1130,33 @@ OUTPUT FORMAT:
             els.btnModel.title = `${AI_CATALOG.providers[state.ai.provider].label} · ${state.ai.model}`;
         }
 
+        function fitSettingsViewport() {
+            const viewport = window.visualViewport;
+            if (viewport && viewport.scale !== 1) return;
+            aiDialog.style.setProperty("--viewport-height", `${viewport?.height ?? window.innerHeight}px`);
+            aiDialog.style.setProperty("--viewport-top", `${viewport?.offsetTop ?? 0}px`);
+            if (!aiDialog.open) return;
+            requestAnimationFrame(() => {
+                const focused = document.activeElement;
+                if (!aiDialog.open || !aiDialog.contains(focused) || focused === aiDialog) return;
+                const bounds = aiDialog.getBoundingClientRect();
+                const field = focused.getBoundingClientRect();
+                const footer = aiDialog.querySelector(".ai-actions");
+                const bottom = footer.contains(focused) ? bounds.bottom - 20 : footer.getBoundingClientRect().top - 12;
+                if (field.bottom > bottom) aiDialog.scrollTop += field.bottom - bottom;
+                else if (field.top < bounds.top + 20) aiDialog.scrollTop -= bounds.top + 20 - field.top;
+            });
+        }
+
         function renderAiDialog() {
             const info = AI_CATALOG.providers[state.ai.provider];
             const isCustom = !info.models.includes(state.ai.model);
 
             aiDialog.innerHTML = `
-                <h2>AI model</h2>
+                <h2 id="aiDialogTitle">AI model</h2>
                 <div class="field">
                     <label>Provider</label>
-                    <div class="ai-providers" role="group"></div>
+                    <div class="ai-providers" role="group" aria-label="Provider"></div>
                 </div>
                 <div class="field">
                     <label for="aiModelSelect">Model</label>
@@ -1204,6 +1315,16 @@ OUTPUT FORMAT:
             };
         }
 
+        function bambooLoadingViewport() {
+            const designWidth = 320;
+            const designHeight = 280;
+            const rect = els.canvasContainer.getBoundingClientRect();
+            const width = Number.isFinite(rect.width) && rect.width > 0 ? rect.width : designWidth;
+            const height = Number.isFinite(rect.height) && rect.height > 0 ? rect.height : designHeight;
+            const scale = Math.min(1, width / designWidth, height / designHeight);
+            return { width, height, scale };
+        }
+
         function startLoadingAnimation() {
             stopAnswerAnimation();
             els.canvasContainer.style.display = "block";
@@ -1215,7 +1336,19 @@ OUTPUT FORMAT:
             els.canvas.setAttribute("aria-label", "Bamboo swaying in the wind while the answer is prepared");
             els.status.textContent = "Listening…";
 
-            let { width, height } = setupCanvas(280);
+            const designHeight = 280;
+            let { width, height, scale } = bambooLoadingViewport();
+            function applyLoadingViewport(viewport) {
+                const configured = setupCanvas(viewport.height);
+                width = configured.width;
+                height = configured.height;
+                scale = viewport.scale;
+                ctx.scale(scale, scale);
+                els.canvasContainer.dataset.loadingWidth = String(width);
+                els.canvasContainer.dataset.loadingHeight = String(height);
+                els.canvasContainer.dataset.loadingScale = String(scale);
+            }
+            applyLoadingViewport({ width, height, scale });
             const stroke = inkColor();
             const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
             const startedAt = performance.now();
@@ -1227,18 +1360,19 @@ OUTPUT FORMAT:
 
             function drawBamboo(timestamp) {
                 state.animationId = null;
-                if (els.canvasContainer.getBoundingClientRect().width !== width) {
-                    ({ width, height } = setupCanvas(280));
+                const viewport = bambooLoadingViewport();
+                if (viewport.width !== width || viewport.height !== height) {
+                    applyLoadingViewport(viewport);
                 }
                 const time = reducedMotion.matches ? 0 : (timestamp - startedAt) / 1000;
-                ctx.clearRect(0, 0, width, height);
+                ctx.clearRect(0, 0, width / scale, height / scale);
                 ctx.strokeStyle = stroke;
                 ctx.lineWidth = 1;
                 ctx.lineCap = "round";
                 ctx.lineJoin = "round";
 
                 for (const stalk of stalks) {
-                    const geometry = bambooStalkGeometry(stalk, width, height, time, reducedMotion.matches);
+                    const geometry = bambooStalkGeometry(stalk, width / scale, designHeight, time, reducedMotion.matches);
                     ctx.globalAlpha = 0.65;
 
                     for (const edge of [geometry.leftEdge, geometry.rightEdge]) {
@@ -1317,12 +1451,11 @@ OUTPUT FORMAT:
         }
 
         function answerTypography() {
-            const style = getComputedStyle(document.documentElement);
-            const token = name => style.getPropertyValue(name).trim();
+            const style = getComputedStyle(els.handwrittenAnswer);
             return {
-                font: `${token("--answer-style")} ${token("--answer-weight")} ${token("--answer-size")} ${token("--font-answer")}`,
-                lineHeight: parseFloat(token("--answer-line-height")),
-                align: token("--answer-align")
+                font: `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`,
+                lineHeight: parseFloat(style.lineHeight),
+                align: style.textAlign
             };
         }
 
@@ -1456,9 +1589,12 @@ OUTPUT FORMAT:
 
         els.btnModel.addEventListener("click", () => {
             renderAiDialog();
+            fitSettingsViewport();
             aiDialog.showModal();
         });
         aiDialog.addEventListener("close", () => setMode(state.mode));
+        window.visualViewport?.addEventListener("resize", fitSettingsViewport);
+        window.visualViewport?.addEventListener("scroll", fitSettingsViewport);
 
         els.btnUploadCustom.addEventListener("click", () => {
             cancelConsultation();
@@ -1504,6 +1640,7 @@ OUTPUT FORMAT:
         });
 
         window.addEventListener("resize", () => {
+            fitSettingsViewport();
             if (els.canvasContainer.dataset.state === "loading" && state.animationId === null) startLoadingAnimation();
         });
 
