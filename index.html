@@ -703,6 +703,13 @@
         };
 
         const TIER_LABELS = { best: "Best", mid: "Balanced", cheap: "Cost-effective", other: "Other" };
+        // Runs through a keyless proxy Worker instead of the user's own key.
+        // Not surfaced in the UI copy; the model simply works without a key.
+        const FREE_MODEL_WORKER_URL = "https://agent.andrzey-jankowski.workers.dev/";
+        const FREE_MODELS = { gemini: ["gemini-3.1-flash-lite-preview"] };
+        function isFreeModel(provider, model) {
+            return (FREE_MODELS[provider] || []).includes(model);
+        }
         const LS_AI = "zen_ai";
         // 512 cut passages off mid-line; 2048 leaves room for the four-passage
         // Zen step as well.
@@ -965,8 +972,24 @@ OUTPUT FORMAT:
             }
         }
 
+        async function callFreeModel(model, prompt) {
+            const res = await fetch(FREE_MODEL_WORKER_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }] })
+            });
+            let data = null;
+            try {
+                data = await res.json();
+            } catch (e) { /* non-JSON error body */ }
+            if (!res.ok || data?.error) throw new Error(providerErrorMessage(data, res));
+            return data?.choices?.[0]?.message?.content || "";
+        }
+
         async function callModel(prompt) {
             const { provider, model } = state.ai;
+            if (isFreeModel(provider, model)) return callFreeModel(model, prompt);
+
             const spec = PROVIDER_REQUESTS[provider];
             const { url, headers, body } = spec.build({ key: currentKey(), model, prompt });
 
@@ -1254,7 +1277,7 @@ OUTPUT FORMAT:
             els.modeZen.setAttribute("aria-pressed", String(mode === "zen"));
             // Both AI-backed modes are dead without a key, so say so up front
             // rather than on the first consult.
-            els.status.textContent = mode !== "bm25" && !currentKey()
+            els.status.textContent = mode !== "bm25" && !currentKey() && !isFreeModel(state.ai.provider, state.ai.model)
                 ? `Add your ${AI_CATALOG.providers[state.ai.provider].label} API key in the model settings.`
                 : "";
         }
@@ -1668,7 +1691,9 @@ OUTPUT FORMAT:
                     passage = bm25Search(query);
                 } else {
                     const info = AI_CATALOG.providers[state.ai.provider];
-                    if (!currentKey()) throw new Error(`Add your ${info.label} API key in the model settings.`);
+                    if (!currentKey() && !isFreeModel(state.ai.provider, state.ai.model)) {
+                        throw new Error(`Add your ${info.label} API key in the model settings.`);
+                    }
                     if (state.mode === "zen") {
                         const result = await consultZen(query, step => {
                             if (requestRevision !== state.requestRevision) throw new Error("Consultation cancelled");
