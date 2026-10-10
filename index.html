@@ -712,6 +712,11 @@
         // Not surfaced in the UI copy; the model simply works without a key.
         const FREE_MODEL_WORKER_URL = "https://agent.andrzey-jankowski.workers.dev/";
         const FREE_MODELS = { gemini: ["gemini-3.5-flash-lite"] };
+        const FREE_MODEL_ERRORS = {
+            failed: "The model did not answer. Try again.",
+            truncated: "The answer was cut short. Try again.",
+            blocked: "The model declined to answer."
+        };
         function isFreeModel(provider, model) {
             return (FREE_MODELS[provider] || []).includes(model);
         }
@@ -994,18 +999,28 @@ OUTPUT FORMAT:
             }
         }
 
+        // Every proxy failure shows fixed wording, never the Worker's own error
+        // text, which can carry its host.
         async function callFreeModel(model, prompt) {
-            const res = await fetch(FREE_MODEL_WORKER_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }] })
-            });
+            let res;
             let data = null;
             try {
+                res = await fetch(FREE_MODEL_WORKER_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }] })
+                });
                 data = await res.json();
-            } catch (e) { /* non-JSON error body */ }
-            if (!res.ok || data?.error) throw new Error(providerErrorMessage(data, res));
-            return data?.choices?.[0]?.message?.content || "";
+            } catch (e) {
+                throw new Error(FREE_MODEL_ERRORS.failed);
+            }
+            if (!res.ok || !data || data.error) throw new Error(FREE_MODEL_ERRORS.failed);
+            const choice = data.choices?.[0];
+            if (choice?.finish_reason === "length") throw new Error(FREE_MODEL_ERRORS.truncated);
+            if (choice?.finish_reason === "content_filter") throw new Error(FREE_MODEL_ERRORS.blocked);
+            const text = choice?.message?.content;
+            if (typeof text !== "string" || !text.trim()) throw new Error(FREE_MODEL_ERRORS.failed);
+            return text;
         }
 
         async function callModel(prompt) {
