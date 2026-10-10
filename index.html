@@ -657,7 +657,7 @@
         // AI provider catalogue, mirroring slidegen's ai-models.js. Update the
         // model IDs here; the request shapes live in PROVIDER_REQUESTS below.
         const AI_CATALOG = {
-            defaultProvider: "openai",
+            defaultProvider: "claude",
             providers: {
                 gemini: {
                     label: "Gemini",
@@ -687,10 +687,11 @@
                 },
                 claude: {
                     label: "Claude",
-                    models: ["claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5"],
+                    models: ["claude-opus-4-8", "claude-sonnet-5", "claude-haiku-5-5"],
+                    defaultModel: "claude-haiku-5-5",
                     // Models that accept thinking:{type:"disabled"}. Picking a passage
                     // is a selection task, so the whole budget goes to the answer.
-                    thinkingOptional: ["claude-opus-4-8", "claude-sonnet-5"],
+                    thinkingOptional: ["claude-opus-4-8", "claude-sonnet-5", "claude-haiku-5-5"],
                     keyPlaceholder: "sk-ant-…",
                     keyUrl: "https://console.anthropic.com/settings/keys",
                     tiers: [
