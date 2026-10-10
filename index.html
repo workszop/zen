@@ -666,6 +666,7 @@
                     // reject it, so sampling goes only to the models that honour it.
                     samplingSupported: ["gemini-3.5-flash", "gemini-3.5-flash-lite"],
                     keyPlaceholder: "AIza…",
+                    keyPattern: /^AIza/,
                     keyUrl: "https://aistudio.google.com/apikey",
                     tiers: [
                         { id: "cheap", test: /(^|-)flash-lite(-|$)/ },
@@ -678,6 +679,8 @@
                     models: ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
                     defaultModel: "gpt-5.6-luna",
                     keyPlaceholder: "sk-…",
+                    // the lookahead keeps Claude's sk-ant- keys out
+                    keyPattern: /^sk-(?!ant-)/,
                     keyUrl: "https://platform.openai.com/api-keys",
                     tiers: [
                         { id: "best", test: /(^|-)sol(-|$)/ },
@@ -693,6 +696,7 @@
                     // is a selection task, so the whole budget goes to the answer.
                     thinkingOptional: ["claude-opus-4-8", "claude-sonnet-5", "claude-haiku-5-5"],
                     keyPlaceholder: "sk-ant-…",
+                    keyPattern: /^sk-ant-/,
                     keyUrl: "https://console.anthropic.com/settings/keys",
                     tiers: [
                         { id: "best", test: /(^|-)opus(-|$)/ },
@@ -770,6 +774,21 @@
             return p.defaultModel || p.models[0];
         }
 
+        // Empties a slot holding an exact copy of a key that sits in its own
+        // provider's slot. A browser password manager filling the key field fires
+        // a real "input" event, which saves the fill under whichever provider is
+        // selected. Clearing a copy loses nothing; a different key is left alone.
+        function clearDuplicateKeys(keys) {
+            let cleared = false;
+            for (const [slot, key] of Object.entries(keys)) {
+                if (!key || AI_CATALOG.providers[slot]?.keyPattern?.test(key)) continue;
+                const owner = Object.keys(AI_CATALOG.providers)
+                    .find(p => p !== slot && keys[p] === key && AI_CATALOG.providers[p].keyPattern?.test(key));
+                if (owner) { keys[slot] = ""; cleared = true; }
+            }
+            return cleared;
+        }
+
         function loadAiSettings() {
             const fallback = {
                 provider: AI_CATALOG.defaultProvider,
@@ -779,11 +798,13 @@
             try {
                 const raw = JSON.parse(localStorage.getItem(LS_AI) || "null");
                 if (!raw || !AI_CATALOG.providers[raw.provider]) return fallback;
-                return {
+                const settings = {
                     provider: raw.provider,
                     model: raw.model || defaultModelFor(raw.provider),
                     keys: { ...fallback.keys, ...(raw.keys || {}) }
                 };
+                if (clearDuplicateKeys(settings.keys)) localStorage.setItem(LS_AI, JSON.stringify(settings));
+                return settings;
             } catch (e) {
                 return fallback;
             }
@@ -1192,7 +1213,7 @@ OUTPUT FORMAT:
                 </div>
                 <div class="field">
                     <label for="aiKey">API key · ${info.label}</label>
-                    <input id="aiKey" type="password" autocomplete="off" spellcheck="false"
+                    <input id="aiKey" type="password" autocomplete="new-password" spellcheck="false"
                         placeholder="${info.keyPlaceholder}">
                     <p class="ai-note">The key stays in this browser (localStorage) and is sent only to the
                         selected provider. Generate one at
